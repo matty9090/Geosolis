@@ -121,9 +121,11 @@
   <ItemGroup>
     <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\Geosolis.cpp" />
+    <ClCompile Include="src\Terrain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\App.hpp" />
+    <ClInclude Include="src\Terrain.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

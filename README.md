@@ -1,1 +1,3 @@
 # Geosolis
+
+Procedurally generated planets
