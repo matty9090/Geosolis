@@ -1,5 +1,5 @@
 #include "Terrain.hpp"
-#include <iostream>
+#include "SimplexNoise.hpp"
 
 using namespace irr;
 using namespace irr::scene;
@@ -7,8 +7,6 @@ using namespace irr::video;
 
 Terrain::Terrain() {
 	mMesh = new irr::scene::SMesh();
-
-	std::cout << mMesh->getMeshBufferCount() << "\n";
 
 	SMeshBuffer *buf = new SMeshBuffer();
 	mMesh->addMeshBuffer(buf);
@@ -23,7 +21,7 @@ Terrain::Terrain() {
 	for (int y = 0; y < height; ++y) {
 		for (int x = 0; x < width; ++x) {
 			S3DVertex &v = buf->Vertices[i++];
-			v.Pos.set(x - 32, 0.0f, y - 32);
+			v.Pos.set(x - 32, SimplexNoise::noise(x / 20.0f, y / 20.0f), y - 32);
 			v.Color.set(0x0000ff);
 			v.Normal.set(0.0f, 1.0f, 0.0f);
 			v.TCoords.set((f32)x / (f32)width, (f32)x / (f32)height);

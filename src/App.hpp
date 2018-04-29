@@ -5,24 +5,47 @@
 
 class EventReciever : public irr::IEventReceiver {
 	public:
+		enum KeyState { NotPressed, Pressed, Held };
+
 		EventReciever() {
 			for (irr::u32 i = 0; i < irr::KEY_KEY_CODES_COUNT; ++i)
-				KeyIsDown[i] = false;
+				keyStates[i] = NotPressed;
 		}
 
 		virtual bool OnEvent(const irr::SEvent& event) {
-			if (event.EventType == irr::EET_KEY_INPUT_EVENT)
-				KeyIsDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
+			if (event.EventType == irr::EET_KEY_INPUT_EVENT) {
+				if (event.KeyInput.PressedDown) {
+					if (keyStates[event.KeyInput.Key] == NotPressed)
+						keyStates[event.KeyInput.Key] = Pressed;
+					else
+						keyStates[event.KeyInput.Key] = Held;
+				} else
+					keyStates[event.KeyInput.Key] = NotPressed;
+			}
 
 			return false;
 		}
 
-		virtual bool IsKeyDown(irr::EKEY_CODE keyCode) const {
-			return KeyIsDown[keyCode];
+		virtual bool KeyHeld(irr::EKEY_CODE keyCode) {
+			if (keyStates[keyCode] == NotPressed)
+				return false;
+
+			keyStates[keyCode] = Held;
+
+			return true;
+		}
+
+		virtual bool KeyHit(irr::EKEY_CODE keyCode) {
+			if (keyStates[keyCode] == Pressed) {
+				keyStates[keyCode] = Held;
+				return true;
+			}
+
+			return false;
 		}
 	
 	private:
-		bool KeyIsDown[irr::KEY_KEY_CODES_COUNT];
+		KeyState keyStates[irr::KEY_KEY_CODES_COUNT];
 };
 
 class App  {
@@ -33,6 +56,8 @@ class App  {
 		int run();
 
 	private:
+		bool mWireframe;
+		
 		irr::IrrlichtDevice *mDevice;
 		irr::video::IVideoDriver *mDriver;
 		irr::scene::ISceneManager *mScene;
@@ -43,6 +68,7 @@ class App  {
 
 		Terrain *mTerrain;
 		EventReciever *mEventReciever;
+		irr::scene::ISceneNode *mTerrainNode;
 
 		void handleEvents();
 };

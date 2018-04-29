@@ -1,5 +1,7 @@
 #include "App.hpp"
 
+#include <iostream>
+
 using namespace irr;
 using namespace core;
 using namespace scene;
@@ -7,7 +9,7 @@ using namespace video;
 using namespace io;
 using namespace gui;
 
-App::App(std::wstring title) : dt(0), mTitle(title.c_str()) {
+App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(true) {
 	mEventReciever = new EventReciever();
 	mDevice = createDevice(EDT_DIRECT3D9, dimension2d<u32>(1280, 960), 32, false, false, false, mEventReciever);
 
@@ -26,11 +28,11 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()) {
 
 	mTerrain = new Terrain();
 
-	ISceneNode *node = mScene->addMeshSceneNode(mTerrain->getMesh());
-	node->setMaterialFlag(EMF_LIGHTING, false);
-	node->setMaterialFlag(EMF_WIREFRAME, true);
-	node->setAutomaticCulling(EAC_OFF);
-	node->setMaterialFlag(EMF_BACK_FACE_CULLING, false);
+	mTerrainNode = mScene->addMeshSceneNode(mTerrain->getMesh());
+	mTerrainNode->setMaterialFlag(EMF_LIGHTING, false);
+	mTerrainNode->setMaterialFlag(EMF_WIREFRAME, mWireframe);
+	mTerrainNode->setMaterialFlag(EMF_BACK_FACE_CULLING, false);
+	mTerrainNode->setAutomaticCulling(EAC_OFF);
 }
 
 App::~App() {
@@ -68,6 +70,11 @@ int App::run() {
 }
 
 void App::handleEvents() {
-	if (mEventReciever->IsKeyDown(KEY_ESCAPE))
+	if (mEventReciever->KeyHit(KEY_ESCAPE))
 		mDevice->closeDevice();
+
+	if (mEventReciever->KeyHit(KEY_F3)) {
+		mWireframe = !mWireframe;
+		mTerrainNode->setMaterialFlag(EMF_WIREFRAME, mWireframe);
+	}
 }
