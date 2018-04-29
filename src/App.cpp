@@ -39,7 +39,9 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(true) {
 
 App::~App() {
 	mDevice->drop();
+
 	delete mTerrain;
+	delete mEventReciever;
 }
 
 int App::run() {

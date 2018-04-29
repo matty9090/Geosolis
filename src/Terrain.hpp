@@ -1,5 +1,7 @@
 #include <irr/irrlicht.h>
 
+#include "TerrainNode.hpp"
+
 class Terrain {
 	public:
 		Terrain();
@@ -13,4 +15,6 @@ class Terrain {
 
 	private:
 		irr::scene::SMesh *mMesh;
+
+		TerrainNode *mRoot;
 };

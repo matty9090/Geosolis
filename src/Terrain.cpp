@@ -7,10 +7,12 @@ using namespace irr::scene;
 using namespace irr::video;
 
 Terrain::Terrain() {
+	mRoot = new TerrainNode(nullptr, rectf(-0.5f, -0.5f, 0.5f, 0.5f));
 	mMesh = new irr::scene::SMesh();
 
 	SMeshBuffer *buf = new SMeshBuffer();
 	mMesh->addMeshBuffer(buf);
+	buf->drop();
 
 	s32 width = 128, height = 128;
 	u32 numIndices = 6 * (width - 1) * (height - 1);
@@ -58,4 +60,7 @@ Terrain::Terrain() {
 
 Terrain::~Terrain() {
 	mMesh->drop();
+	mRoot->cleanup();
+
+	delete mRoot;
 }
