@@ -28,7 +28,7 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(true) {
 	cam->setPosition(vector3df(0.0f, 20.0f, 0.0f));
 	cam->setRotation(vector3df(3.141f, 0.0f, 0.0f));
 
-	mScene->addLightSceneNode(nullptr, vector3df(20.0f, 20.0f, 0.0f));
+	mScene->addLightSceneNode(nullptr, vector3df(0.0f, 20.0f, 0.0f));
 
 	mTerrain = new Terrain(mScene, mDriver);
 	mTerrain->getTerrainNode()->setMaterialFlag(EMF_WIREFRAME, mWireframe);
