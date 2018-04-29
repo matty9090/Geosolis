@@ -1,20 +1,20 @@
 #include <irr/irrlicht.h>
 
-#include "TerrainNode.hpp"
+class TerrainNode;
 
 class Terrain {
 	public:
-		Terrain();
+		Terrain(irr::scene::ISceneManager *scene, irr::video::IVideoDriver *driver);
 		~Terrain();
 
-		irr::scene::SMesh *getMesh() const { return mMesh; }
-
-		class Face {
-			irr::scene::SMesh mesh;
-		};
+		TerrainNode					*getTerrainNode()	const;
+		irr::scene::ISceneNode		*getSceneNode()		const;
+		irr::scene::ISceneManager	*getSceneManager()	const { return mScene; }
+		irr::video::IVideoDriver	*getVideoDriver()	const { return mDriver; }
 
 	private:
-		irr::scene::SMesh *mMesh;
-
 		TerrainNode *mRoot;
+
+		irr::video::IVideoDriver  *mDriver;
+		irr::scene::ISceneManager *mScene;
 };

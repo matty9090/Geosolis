@@ -1,6 +1,8 @@
 #include "App.hpp"
+#include "TerrainNode.hpp"
 
 #include <iostream>
+
 
 using namespace irr;
 using namespace core;
@@ -28,13 +30,8 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(true) {
 
 	mScene->addLightSceneNode(nullptr, vector3df(20.0f, 20.0f, 0.0f));
 
-	mTerrain = new Terrain();
-
-	mTerrainNode = mScene->addMeshSceneNode(mTerrain->getMesh());
-	mTerrainNode->setMaterialFlag(EMF_WIREFRAME, mWireframe);
-	mTerrainNode->setMaterialFlag(EMF_BACK_FACE_CULLING, false);
-	mTerrainNode->setAutomaticCulling(EAC_OFF);
-	mTerrainNode->setMaterialTexture(0, mDriver->getTexture("tex/grass.png"));
+	mTerrain = new Terrain(mScene, mDriver);
+	mTerrain->getTerrainNode()->setMaterialFlag(EMF_WIREFRAME, mWireframe);
 }
 
 App::~App() {
@@ -79,6 +76,6 @@ void App::handleEvents() {
 
 	if (mEventReciever->KeyHit(KEY_F3)) {
 		mWireframe = !mWireframe;
-		mTerrainNode->setMaterialFlag(EMF_WIREFRAME, mWireframe);
+		mTerrain->getTerrainNode()->setMaterialFlag(EMF_WIREFRAME, mWireframe);
 	}
 }

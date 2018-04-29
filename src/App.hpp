@@ -68,7 +68,6 @@ class App  {
 
 		Terrain *mTerrain;
 		EventReciever *mEventReciever;
-		irr::scene::ISceneNode *mTerrainNode;
 
 		void handleEvents();
 };
