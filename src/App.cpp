@@ -21,13 +21,16 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()) {
 	mGui    = mDevice->getGUIEnvironment();
 
 	//mScene->addCameraSceneNode(nullptr, vector3df(0.0f, 20.0f, 0.0f), vector3df(0.0f, 0.0f, 0.0f));
-	mScene->addCameraSceneNodeFPS(nullptr, 80.0f, 0.02f);
+	ICameraSceneNode *cam = mScene->addCameraSceneNodeFPS(nullptr, 80.0f, 0.02f);
+	cam->setPosition(vector3df(0.0f, 20.0f, 0.0f));
+	cam->setRotation(vector3df(3.141f, 0.0f, 0.0f));
 
 	mTerrain = new Terrain();
 
 	ISceneNode *node = mScene->addMeshSceneNode(mTerrain->getMesh());
 	node->setMaterialFlag(EMF_LIGHTING, false);
 	node->setMaterialFlag(EMF_WIREFRAME, true);
+	node->setAutomaticCulling(EAC_OFF);
 	node->setMaterialFlag(EMF_BACK_FACE_CULLING, false);
 }
 
