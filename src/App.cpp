@@ -24,8 +24,8 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(true) {
 	mScene  = mDevice->getSceneManager();
 	mGui    = mDevice->getGUIEnvironment();
 
-	//ICameraSceneNode *cam = mScene->addCameraSceneNodeFPS(nullptr, 80.0f, 0.02f);
-	ICameraSceneNode *cam = mScene->addCameraSceneNode();
+	ICameraSceneNode *cam = mScene->addCameraSceneNodeFPS(nullptr, 80.0f, 0.02f);
+	//ICameraSceneNode *cam = mScene->addCameraSceneNode();
 
 	cam->setPosition(vector3df(0.0f, 100.0f, 0.0f));
 	cam->setRotation(vector3df(3.141f, 0.0f, 0.0f));
@@ -85,11 +85,9 @@ void App::handleEvents() {
 
 	if (mEventReciever->KeyHit(KEY_F1)) {
 		mTerrain->getTerrainNode()->split();
-		mTerrain->getTerrainNode()->setMaterialFlag(EMF_WIREFRAME, mWireframe);
 	}
 
 	if (mEventReciever->KeyHit(KEY_F2)) {
 		mTerrain->getTerrainNode()->merge();
-		mTerrain->getTerrainNode()->setMaterialFlag(EMF_WIREFRAME, mWireframe);
 	}
 }

@@ -2,7 +2,7 @@
 
 class TerrainNode;
 
-#define GRID_SIZE 32
+#define GRID_SIZE 33
 
 class Terrain {
 	public:

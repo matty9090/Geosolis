@@ -2,6 +2,8 @@
 #include "SimplexNoise.hpp"
 #include "Terrain.hpp"
 
+#include <iostream>
+
 using namespace irr;
 using namespace irr::core;
 using namespace irr::scene;
@@ -25,8 +27,11 @@ void TerrainNode::setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value) 
 }
 
 void TerrainNode::update() {
-	/*float distance	= mCentre.getDistanceFrom(mTerrain->getCamera()->getPosition());
-	bool divide		= (distance < (float)mDepth / 5.5f);
+	float distance	= mCentre.getDistanceFrom(mTerrain->getCamera()->getPosition());
+
+	//std::cout << distance << ": " << 7.0f - 0.07f * distance << "\n";
+
+	bool divide	= (7.0f - 0.07f * distance > (f32)mDepth);
 
 	if (!divide)
 		merge();
@@ -36,7 +41,7 @@ void TerrainNode::update() {
 	} else if (!isLeaf()) {
 		for (auto child : mChildren)
 			child->update();
-	}*/
+	}
 }
 
 void TerrainNode::split() {
@@ -115,7 +120,7 @@ void TerrainNode::createMesh() {
 	createPlane(buf);
 	calculateNormals(buf);
 
-	mCentre = buf->Vertices[((GRID_SIZE - 1) * (GRID_SIZE - 1)) / 2].Pos;
+	mCentre = buf->Vertices[mNumVertices / 2].Pos;
 
 	buf->setHardwareMappingHint(EHM_STATIC);
 	
@@ -124,6 +129,7 @@ void TerrainNode::createMesh() {
 	mSceneNode->setMaterialFlag(EMF_BACK_FACE_CULLING, false);
 	mSceneNode->setAutomaticCulling(EAC_OFF);
 	mSceneNode->setMaterialTexture(0, mTerrain->getVideoDriver()->getTexture("tex/grass.png"));
+	mSceneNode->setMaterialFlag(EMF_WIREFRAME, true);
 }
 
 void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
