@@ -1,5 +1,4 @@
 #include "TerrainNode.hpp"
-#include "SimplexNoise.hpp"
 #include "Terrain.hpp"
 
 #include <iostream>
@@ -32,7 +31,7 @@ void TerrainNode::update() {
 
 	//std::cout << distance << ": " << 7.0f - 0.07f * distance << "\n";
 
-	bool divide	= (3.0f - 0.03f * distance > (f32)mDepth);
+	bool divide	= (6.0f - 0.06f * distance > (f32)mDepth);
 
 	if (!divide)
 		merge();
@@ -193,7 +192,7 @@ void TerrainNode::createMesh() {
 	mBuffer->Indices.set_used(mNumIndices);
 
 	createPlane(mBuffer);
-	calculateNormals(mBuffer);
+	//calculateNormals(mBuffer);
 
 	mCentre = mBuffer->Vertices[mNumVertices / 2].Pos;
 
@@ -225,6 +224,7 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 			float xx = mBounds.UpperLeftCorner.X + x * stepX;
 			float yy = mBounds.UpperLeftCorner.Y + y * stepY;			
 			float height;
+			vector3df normal;
 
 			//mTerrain->getSceneManager()->addSphereSceneNode(0.14f, 16, getSceneNode(), -1, vector3df(xx, height, yy))->setMaterialTexture(0, mTerrain->getVideoDriver()->getTexture("tex/blue.png"));
 
@@ -240,16 +240,24 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 				height += noise.fractal(8, (f32)xx1 / 50.0f, (f32)yy / 50.0f) * 5.0f;
 				height /= 2;
 
+				normal  = calculateNormal(noise, xx0, yy, stepX, stepY);
+				normal += calculateNormal(noise, xx1, yy, stepX, stepY);
+
+				normal /= 2;
+				normal = normal.normalize();
+
 				/*ISceneNode *node = mTerrain->getSceneManager()->addSphereSceneNode(0.28f / mDepth, 8, mSceneNode, -1, vector3df(xx, height, yy));
 				node->setMaterialTexture(0, mTerrain->getVideoDriver()->getTexture("tex/blue.png"));
 				mMarkers.push_back(node);*/
-			} else
+			} else {
+				normal = calculateNormal(noise, xx, yy, stepX, stepY);
 				height = noise.fractal(8, (f32)xx / 50.0f, (f32)yy / 50.0f) * 5.0f;
+			}
 
 			S3DVertex &v = buf->Vertices[i++];
 			v.Pos.set(xx, height, yy);
 			v.Color.set(0x00aa00);
-			v.Normal.set(0.0f, 0.0f, 0.0f);
+			v.Normal = normal;
 			v.TCoords.set(x * stepX, y * stepY);
 
 			mHeights[i - 1] = v.Pos;
@@ -273,6 +281,24 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 			buf->Indices[i++] = (y + 1) * GRID_SIZE + x + 1;
 		}
 	}
+}
+
+vector3df TerrainNode::calculateNormal(SimplexNoise &noise, irr::f32 x, irr::f32 y, irr::f32 stepX, irr::f32 stepY) {
+	std::array<f32, 9> s;
+	vector3df n;
+	u32 i = 0;
+
+	for (int yy = -1; yy <= 1; yy++)
+		for (int xx = -1; xx <= 1; xx++)
+			s[i++] = noise.fractal(8, (x - (f32)xx * stepX) / 50.0f, (y - (f32)yy * stepY) / 50.0f);
+
+	f32 scale = 0.05f;
+
+	n.X = scale * -(s[2] - s[0] + 2 * (s[5] - s[3]) + s[8] - s[6]);
+	n.Z = scale * -(s[6] - s[0] + 2 * (s[7] - s[1]) + s[8] - s[2]);
+	n.Y = 1.0;
+
+	return n.normalize();
 }
 
 void TerrainNode::calculateNormals(irr::scene::SMeshBuffer *buf, bool smooth) {

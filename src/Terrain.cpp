@@ -10,7 +10,7 @@ using namespace irr::video;
 Terrain::Terrain(irr::scene::ISceneManager *scene, irr::video::IVideoDriver *driver, irr::scene::ICameraSceneNode *cam)
 	: mScene(scene), mDriver(driver), mCamera(cam)
 {
-	mRoot = new TerrainNode(nullptr, this, rectf(-50.0f, -50.0f, 50.0f, 50.0f));
+	mRoot = new TerrainNode(nullptr, this, rectf(-100.0f, -100.0f, 100.0f, 100.0f));
 	mRoot->init();
 }
 

@@ -2,6 +2,8 @@
 #include <array>
 #include <vector>
 
+#include "SimplexNoise.hpp"
+
 class Terrain;
 
 class TerrainNode {
@@ -54,4 +56,5 @@ class TerrainNode {
 		void createMesh();
 		void createPlane(irr::scene::SMeshBuffer *buf);
 		void calculateNormals(irr::scene::SMeshBuffer *buf, bool smooth = true);
+		irr::core::vector3df calculateNormal(SimplexNoise &noise, irr::f32 x, irr::f32 y, irr::f32 stepX, irr::f32 stepY);
 };
