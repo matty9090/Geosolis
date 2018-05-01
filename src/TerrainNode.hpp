@@ -22,14 +22,18 @@ class TerrainNode {
 		void merge();
 		void rebuildEdge(int dir);
 		void cleanup();
+		void notifyNeighbours();
 		void removeMarkers();
 
 		irr::f32					 getHeight(int edge, int index) const;
 		irr::u32					 getDepth()						const { return mDepth; }
 		irr::scene::ISceneNode		*getSceneNode()					const { return mSceneNode; }
-		std::array<TerrainNode*, 4>	 getGENeighbours()				const;
 		TerrainNode					*getChild(int quad)				const { return mChildren[quad]; };
-		TerrainNode					*getGENeighbourDir(int dir)		const;
+
+		std::array<TerrainNode*, 4>					 getGENeighbours()								 	 const;
+		std::array<std::vector<TerrainNode*>, 4>	 getSENeighbours()									 const;
+		TerrainNode									*getGENeighbourDir(int dir)							 const;
+		std::vector<TerrainNode*>					 getSENeighboursDir(TerrainNode *neighbour, int dir) const;
 
 	private:
 		irr::u32 mDepth;
@@ -55,6 +59,8 @@ class TerrainNode {
 		void cleanData();
 		void createMesh();
 		void createPlane(irr::scene::SMeshBuffer *buf);
-		void calculateNormals(irr::scene::SMeshBuffer *buf, bool smooth = true);
-		irr::core::vector3df calculateNormal(SimplexNoise &noise, irr::f32 x, irr::f32 y, irr::f32 stepX, irr::f32 stepY);
+
+		inline irr::core::vector3df calculateNormal(SimplexNoise &noise, irr::f32 x, irr::f32 y, irr::f32 stepX, irr::f32 stepY);
+		inline void fixDetailV(SimplexNoise &noise, int x, float yy, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir);
+		inline void fixDetailH(SimplexNoise &noise, int y, float xx, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir);
 };
