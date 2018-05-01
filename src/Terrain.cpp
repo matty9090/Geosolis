@@ -36,7 +36,7 @@ void Terrain::update() {
 }
 
 float Terrain::getHeight(float x, float y) {
-	return mNoise.GetValue(x / 50.0f, y / 50.0f, 0.0f) * 9.0f;
+	return (float)mNoise.GetValue((double)x / 50.0, (double)y / 50.0, 0.0) * 9.0f;
 }
 
 TerrainNode *Terrain::getTerrainNode() const {
