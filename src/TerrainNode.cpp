@@ -358,7 +358,7 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 			float xx = mBounds.UpperLeftCorner.X + x * stepX;
 			float yy = mBounds.UpperLeftCorner.Y + y * stepY;			
 			float height;
-			vector3df normal;
+			vector3df normal = vector3df(0.0f, 1.0f, 0.0f);
 
 			if (details[North] > 1 && y == 0 && x > 0 && x < GRID_SIZE - 1 && (x % details[North] != 0))
 				fixDetailV(noise, x, yy, details, stepX, stepY, height, normal, North);
@@ -369,7 +369,7 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 			else if (details[East] > 1 && x == GRID_SIZE - 1 && y > 0 && y < GRID_SIZE - 1 && (y % details[East] != 0))
 				fixDetailH(noise, y, xx, details, stepX, stepY, height, normal, East);
 			else {
-				normal = calculateNormal(noise, xx, yy, stepX, stepY);
+				//normal = calculateNormal(noise, xx, yy, stepX, stepY);
 				height = noise.fractal(8, (f32)xx / 50.0f, (f32)yy / 50.0f) * 5.0f;
 			}
 

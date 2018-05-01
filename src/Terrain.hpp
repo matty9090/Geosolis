@@ -1,4 +1,5 @@
 #include <irr/irrlicht.h>
+#include <noise/noise.h>
 
 class TerrainNode;
 
@@ -19,6 +20,7 @@ class Terrain {
 
 	private:
 		TerrainNode *mRoot;
+		noise::module::Perlin mNoise;
 
 		irr::video::IVideoDriver  *mDriver;
 		irr::scene::ISceneManager *mScene;
