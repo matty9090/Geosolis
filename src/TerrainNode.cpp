@@ -30,14 +30,12 @@ void TerrainNode::setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value) 
 void TerrainNode::update() {
 	float distance	= mCentre.getDistanceFrom(mTerrain->getCamera()->getPosition());
 
-	//std::cout << distance << ": " << 7.0f - 0.07f * distance << "\n";
-
-	bool divide	= (6.0f - 0.06f * distance > (f32)mDepth);
+	bool divide	= (11.0f - 4.6f * log10(distance + 2.0f) > (f32)mDepth);
 
 	if (!divide)
 		merge();
 
-	if (isLeaf() && divide && mDepth < 4) {
+	if (isLeaf() && divide && mDepth < 8) {
 		split();
 	} else if (!isLeaf()) {
 		for (auto child : mChildren)
@@ -333,7 +331,7 @@ void TerrainNode::createMesh() {
 }
 
 void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
-	SimplexNoise noise(1.2f, 2.0f, 2.2f, 0.4f);
+	SimplexNoise noise(1.2f, 1.0f, 2.2f, 0.4f);
 
 	u32 i = 0;
 
@@ -348,12 +346,12 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 	details[East ] = neighbours[East ] ? ((int)pow(2, mDepth - neighbours[East ]->getDepth())) : 0;
 	details[West ] = neighbours[West ] ? ((int)pow(2, mDepth - neighbours[West ]->getDepth())) : 0;
 
-	mEdges[North].resize(GRID_SIZE);
+	/*mEdges[North].resize(GRID_SIZE);
 	mEdges[West ].resize(GRID_SIZE);
 	mEdges[South].resize(GRID_SIZE);
-	mEdges[East ].resize(GRID_SIZE);
+	mEdges[East ].resize(GRID_SIZE);*/
 
-	mHeights.resize(mNumVertices);
+	//mHeights.resize(mNumVertices);
 
 	for (int y = 0; y < GRID_SIZE; ++y) {
 		for (int x = 0; x < GRID_SIZE; ++x) {
@@ -381,12 +379,12 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 			v.Normal = normal;
 			v.TCoords.set(x * stepX, y * stepY);
 
-			mHeights[i - 1] = v.Pos;
+			//mHeights[i - 1] = v.Pos;
 
-			if (y == 0) mEdges[North][x] = i - 1;
+			/*if (y == 0) mEdges[North][x] = i - 1;
 			if (x == 0) mEdges[West ][y] = i - 1;
 			if (y == GRID_SIZE - 1) mEdges[South][x] = i - 1;
-			if (x == GRID_SIZE - 1) mEdges[East ][y] = i - 1;
+			if (x == GRID_SIZE - 1) mEdges[East ][y] = i - 1;*/
 		}
 	}
 
@@ -418,14 +416,10 @@ void TerrainNode::fixDetailV(SimplexNoise &noise, int x, float yy, std::array<ir
 
 	height = h0 + p * (h1 - h0);
 
-	vector3df n0 = calculateNormal(noise, xx0, yy, stepX, stepY);
-	vector3df n1 = calculateNormal(noise, xx1, yy, stepX, stepY);
+	//vector3df n0 = calculateNormal(noise, xx0, yy, stepX, stepY);
+	//vector3df n1 = calculateNormal(noise, xx1, yy, stepX, stepY);
 
-	normal = n0 + p * (n1 - n0);
-
-	//ISceneNode *node = mTerrain->getSceneManager()->addSphereSceneNode(0.28f / mDepth, 8, mSceneNode, -1, vector3df(xx, height, yy));
-	//node->setMaterialTexture(0, mTerrain->getVideoDriver()->getTexture("tex/blue.png"));
-	//mMarkers.push_back(node);
+	//normal = n0 + p * (n1 - n0);
 }
 
 void TerrainNode::fixDetailH(SimplexNoise &noise, int y, float xx, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir) {
@@ -446,10 +440,6 @@ void TerrainNode::fixDetailH(SimplexNoise &noise, int y, float xx, std::array<ir
 	vector3df n1 = calculateNormal(noise, xx, yy1, stepX, stepY);
 
 	normal = n0 + p * (n1 - n0);
-
-	//ISceneNode *node = mTerrain->getSceneManager()->addSphereSceneNode(0.28f / mDepth, 8, mSceneNode, -1, vector3df(xx, height, yy));
-	//node->setMaterialTexture(0, mTerrain->getVideoDriver()->getTexture("tex/blue.png"));
-	//mMarkers.push_back(node);
 }
 
 vector3df TerrainNode::calculateNormal(SimplexNoise &noise, irr::f32 x, irr::f32 y, irr::f32 stepX, irr::f32 stepY) {
@@ -461,7 +451,7 @@ vector3df TerrainNode::calculateNormal(SimplexNoise &noise, irr::f32 x, irr::f32
 		for (int xx = -1; xx <= 1; xx++)
 			s[i++] = noise.fractal(8, (x - (f32)xx * stepX) / 50.0f, (y - (f32)yy * stepY) / 50.0f);
 
-	f32 scale = 0.05f;
+	f32 scale = 0.02f;
 
 	n.X = scale * -(s[2] - s[0] + 2 * (s[5] - s[3]) + s[8] - s[6]);
 	n.Z = scale * -(s[6] - s[0] + 2 * (s[7] - s[1]) + s[8] - s[2]);
