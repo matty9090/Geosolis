@@ -76,7 +76,8 @@ class App  {
 		void handleEvents();
 		void updateGUI();
 
-		template <class T> std::string vecToString(irr::core::vector3d<T> v);
-		std::string toString(float v);
 		std::wstring toMultiByte(std::string str);
+
+		template <class T> std::string vecToString(irr::core::vector3d<T> v);
+		template <class T> std::string toString(T v, size_t precision = 4);
 };

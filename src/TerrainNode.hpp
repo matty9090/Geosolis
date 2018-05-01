@@ -14,7 +14,7 @@ class TerrainNode {
 		enum EDir  { North, East, South, West };
 		enum EQuad { NE, NW, SE, SW };
 
-		void init() { cleanData(); createMesh(); }
+		void init();
 		bool isLeaf() const { return mChildren[0] == nullptr; }
 		void setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value);
 		void update();
@@ -34,6 +34,9 @@ class TerrainNode {
 		std::array<std::vector<TerrainNode*>, 4>	 getSENeighbours()									 const;
 		TerrainNode									*getGENeighbourDir(int dir)							 const;
 		std::vector<TerrainNode*>					 getSENeighboursDir(TerrainNode *neighbour, int dir) const;
+
+		static bool Wireframe;
+		static irr::u64 Triangles;
 
 	private:
 		irr::u32 mDepth;
@@ -60,7 +63,7 @@ class TerrainNode {
 		void createMesh();
 		void createPlane(irr::scene::SMeshBuffer *buf);
 
-		inline irr::core::vector3df calculateNormal(SimplexNoise &noise, irr::f32 x, irr::f32 y, irr::f32 stepX, irr::f32 stepY);
-		inline void fixDetailV(SimplexNoise &noise, int x, float yy, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir);
-		inline void fixDetailH(SimplexNoise &noise, int y, float xx, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir);
+		inline irr::core::vector3df calculateNormal(irr::f32 x, irr::f32 y, irr::f32 stepX, irr::f32 stepY);
+		inline void fixDetailV(int x, float yy, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir);
+		inline void fixDetailH(int y, float xx, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir);
 };

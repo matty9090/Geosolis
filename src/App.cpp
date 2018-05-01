@@ -32,6 +32,7 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(true) {
 
 	mTerrain = new Terrain(mScene, mDriver, mCamera);
 	mTerrain->getTerrainNode()->setMaterialFlag(EMF_WIREFRAME, mWireframe);
+	TerrainNode::Wireframe = mWireframe;
 
 	IGUISkin *skin = mGui->getSkin();
 	IGUIFont *font = mGui->getFont("fonts/Consolas/Consolas.xml");
@@ -40,10 +41,12 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(true) {
 	skin->setColor(EGDC_BUTTON_TEXT, SColor(255, 255, 255, 255));
 
 	IGUIStaticText *txtCam		= mGui->addStaticText(L"Camera: (0, 0, 0)", recti(10, 10, 600, 40));
-	IGUIStaticText *txtDepth	= mGui->addStaticText(L"Depth: 0", recti(10, 40, 600, 80));
-
-	mHUD["Camera"] = txtCam;
-	mHUD["Depth"] = txtDepth;
+	IGUIStaticText *txtDepth	= mGui->addStaticText(L"Depth: 0", recti(10, 40, 600, 70));
+	IGUIStaticText *txtTri		= mGui->addStaticText(L"Triangles: 0", recti(10, 70, 600, 100));
+	
+	mHUD["Camera"]		= txtCam;
+	mHUD["Depth"]		= txtDepth;
+	mHUD["Triangles"]	= txtTri;
 }
 
 App::~App() {
@@ -91,6 +94,7 @@ void App::handleEvents() {
 
 	if (mEventReciever->KeyHit(KEY_F3)) {
 		mWireframe = !mWireframe;
+		TerrainNode::Wireframe = mWireframe;
 		mTerrain->getTerrainNode()->setMaterialFlag(EMF_WIREFRAME, mWireframe);
 	}
 
@@ -108,7 +112,8 @@ void App::updateGUI() {
 	float depth = 11.0f - 4.6f * log10(mCamera->getPosition().Y + 2.0f);
 
 	mHUD["Camera"]->setText(toMultiByte("Camera: " + vecToString(mCamera->getPosition())).c_str());
-	mHUD["Depth"]->setText(toMultiByte("Depth: " + toString(depth)).c_str());
+	mHUD["Depth"]->setText(toMultiByte("Depth: " + toString((s32)depth)).c_str());
+	mHUD["Triangles"]->setText(toMultiByte("Triangles: " + toString(TerrainNode::Triangles, 10)).c_str());
 }
 
 template<class T> inline std::string App::vecToString(irr::core::vector3d<T> v) {
@@ -120,9 +125,9 @@ template<class T> inline std::string App::vecToString(irr::core::vector3d<T> v) 
 }
 
 
-std::string App::toString(float v) {
+template <class T> std::string App::toString(T v, size_t precision) {
 	std::ostringstream ss;
-	ss.precision(4);
+	ss.precision(precision);
 	ss << v;
 
 	return ss.str();
@@ -133,6 +138,8 @@ std::wstring App::toMultiByte(std::string str) {
 	const size_t size = str.length() + 1;
 	wchar_t *wc = new wchar_t[size];
 	mbstowcs_s(&conv, wc, size, str.c_str(), size);
+	std::wstring nstr = wc;
+	delete wc;
 
-	return wc;
+	return nstr;
 }

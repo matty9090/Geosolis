@@ -1,9 +1,11 @@
 #include <irr/irrlicht.h>
 #include <noise/noise.h>
 
+#include "noiseutils.h"
+
 class TerrainNode;
 
-#define GRID_SIZE 33
+#define GRID_SIZE 17
 
 class Terrain {
 	public:
@@ -11,6 +13,7 @@ class Terrain {
 		~Terrain();
 		
 		void update();
+		float getHeight(float x, float y);
 
 		TerrainNode						*getTerrainNode()	const;
 		irr::scene::ISceneNode			*getSceneNode()		const;
@@ -20,6 +23,7 @@ class Terrain {
 
 	private:
 		TerrainNode *mRoot;
+		utils::NoiseMap mHeightmap;
 		noise::module::Perlin mNoise;
 
 		irr::video::IVideoDriver  *mDriver;

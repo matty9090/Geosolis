@@ -12,6 +12,17 @@ Terrain::Terrain(irr::scene::ISceneManager *scene, irr::video::IVideoDriver *dri
 {
 	mRoot = new TerrainNode(nullptr, this, rectf(-100.0f, -100.0f, 100.0f, 100.0f));
 	mRoot->init();
+
+	mNoise.SetFrequency(1.0f);
+	mNoise.SetPersistence(0.5f);
+	mNoise.SetLacunarity(2.0f);
+
+	utils::NoiseMapBuilderSphere builder;
+	builder.SetSourceModule(mNoise);
+	builder.SetDestNoiseMap(mHeightmap);
+	builder.SetDestSize(512, 256);
+	builder.SetBounds(-90.0, 90.0, -180.0, 180.0);
+	builder.Build();
 }
 
 Terrain::~Terrain() {
@@ -22,6 +33,10 @@ Terrain::~Terrain() {
 
 void Terrain::update() {
 	mRoot->update();
+}
+
+float Terrain::getHeight(float x, float y) {
+	return mNoise.GetValue(x / 50.0f, y / 50.0f, 0.0f) * 9.0f;
 }
 
 TerrainNode *Terrain::getTerrainNode() const {

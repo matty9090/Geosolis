@@ -9,6 +9,9 @@ using namespace irr::core;
 using namespace irr::scene;
 using namespace irr::video;
 
+u64  TerrainNode::Triangles = 0U;
+bool TerrainNode::Wireframe = false;
+
 TerrainNode::TerrainNode(TerrainNode *parent, Terrain *terrain, irr::core::rectf bounds)
   : mParent(parent),
 	mTerrain(terrain),
@@ -16,6 +19,11 @@ TerrainNode::TerrainNode(TerrainNode *parent, Terrain *terrain, irr::core::rectf
 	mDepth(parent ? parent->getDepth() + 1 : 1)
 {
 	
+}
+
+void TerrainNode::init() {
+	cleanData();
+	createMesh();
 }
 
 void TerrainNode::setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value) {
@@ -35,7 +43,7 @@ void TerrainNode::update() {
 	if (!divide)
 		merge();
 
-	if (isLeaf() && divide && mDepth < 8) {
+	if (isLeaf() && divide && mDepth < 6) {
 		split();
 	} else if (!isLeaf()) {
 		for (auto child : mChildren)
@@ -296,6 +304,8 @@ std::vector<TerrainNode*> TerrainNode::getSENeighboursDir(TerrainNode *neighbour
 void TerrainNode::cleanData() {
 	removeMarkers();
 
+	Triangles -= mNumIndices / 3;
+
 	if (mSceneNode && mMesh) {
 		mMesh->clear();
 		mMesh->drop();
@@ -315,10 +325,12 @@ void TerrainNode::createMesh() {
 	mSceneNode->setMaterialFlag(EMF_BACK_FACE_CULLING, false);
 	mSceneNode->setAutomaticCulling(EAC_OFF);
 	mSceneNode->setMaterialTexture(0, mTerrain->getVideoDriver()->getTexture("tex/grass.png"));
-	mSceneNode->setMaterialFlag(EMF_WIREFRAME, false);
+	mSceneNode->setMaterialFlag(EMF_WIREFRAME, Wireframe);
 
 	mNumVertices = GRID_SIZE * GRID_SIZE;
 	mNumIndices	 = 6 * (GRID_SIZE - 1) * (GRID_SIZE - 1);
+
+	Triangles += mNumIndices / 3;
 
 	mBuffer->Vertices.set_used(mNumVertices);
 	mBuffer->Indices.set_used(mNumIndices);
@@ -331,8 +343,6 @@ void TerrainNode::createMesh() {
 }
 
 void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
-	SimplexNoise noise(1.2f, 1.0f, 2.2f, 0.4f);
-
 	u32 i = 0;
 
 	float stepX = mBounds.getWidth() / (GRID_SIZE - 1);
@@ -361,16 +371,16 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 			vector3df normal = vector3df(0.0f, 1.0f, 0.0f);
 
 			if (details[North] > 1 && y == 0 && x > 0 && x < GRID_SIZE - 1 && (x % details[North] != 0))
-				fixDetailV(noise, x, yy, details, stepX, stepY, height, normal, North);
+				fixDetailV(x, yy, details, stepX, stepY, height, normal, North);
 			else if(details[South] > 1 && y == GRID_SIZE - 1 && x > 0 && x < GRID_SIZE - 1 && (x % details[South] != 0))
-				fixDetailV(noise, x, yy, details, stepX, stepY, height, normal, South);
+				fixDetailV(x, yy, details, stepX, stepY, height, normal, South);
 			else if (details[West] > 1 && x == 0 && y > 0 && y < GRID_SIZE - 1 && (y % details[West] != 0))
-				fixDetailH(noise, y, xx, details, stepX, stepY, height, normal, West);
+				fixDetailH(y, xx, details, stepX, stepY, height, normal, West);
 			else if (details[East] > 1 && x == GRID_SIZE - 1 && y > 0 && y < GRID_SIZE - 1 && (y % details[East] != 0))
-				fixDetailH(noise, y, xx, details, stepX, stepY, height, normal, East);
+				fixDetailH(y, xx, details, stepX, stepY, height, normal, East);
 			else {
-				//normal = calculateNormal(noise, xx, yy, stepX, stepY);
-				height = noise.fractal(8, (f32)xx / 50.0f, (f32)yy / 50.0f) * 5.0f;
+				//normal = calculateNormal(xx, yy, stepX, stepY);
+				height = mTerrain->getHeight(xx, yy);
 			}
 
 			S3DVertex &v = buf->Vertices[i++];
@@ -402,7 +412,7 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 	}
 }
 
-void TerrainNode::fixDetailV(SimplexNoise &noise, int x, float yy, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir) {
+void TerrainNode::fixDetailV(int x, float yy, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir) {
 	f32 r = (f32)(x % details[dir]);
 	f32 p = r / (f32)details[dir];
 	f32 p0 = -r, p1 = (f32)details[dir] - r;
@@ -411,18 +421,18 @@ void TerrainNode::fixDetailV(SimplexNoise &noise, int x, float yy, std::array<ir
 	float xx0 = mBounds.UpperLeftCorner.X + (x + p0) * stepX;
 	float xx1 = mBounds.UpperLeftCorner.X + (x + p1) * stepX;
 
-	float h0 = noise.fractal(8, (f32)xx0 / 50.0f, (f32)yy / 50.0f) * 5.0f;
-	float h1 = noise.fractal(8, (f32)xx1 / 50.0f, (f32)yy / 50.0f) * 5.0f;
+	float h0 = mTerrain->getHeight(xx0, yy);
+	float h1 = mTerrain->getHeight(xx1, yy);
 
 	height = h0 + p * (h1 - h0);
 
-	//vector3df n0 = calculateNormal(noise, xx0, yy, stepX, stepY);
-	//vector3df n1 = calculateNormal(noise, xx1, yy, stepX, stepY);
+	//vector3df n0 = calculateNormal(xx0, yy, stepX, stepY);
+	//vector3df n1 = calculateNormal(xx1, yy, stepX, stepY);
 
 	//normal = n0 + p * (n1 - n0);
 }
 
-void TerrainNode::fixDetailH(SimplexNoise &noise, int y, float xx, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir) {
+void TerrainNode::fixDetailH(int y, float xx, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir) {
 	f32 r = (f32)(y % details[dir]);
 	f32 p = r / (f32)details[dir];
 	f32 p0 = -r, p1 = (f32)details[dir] - r;
@@ -431,25 +441,25 @@ void TerrainNode::fixDetailH(SimplexNoise &noise, int y, float xx, std::array<ir
 	float yy0 = mBounds.UpperLeftCorner.Y + (y + p0) * stepY;
 	float yy1 = mBounds.UpperLeftCorner.Y + (y + p1) * stepY;
 
-	float h0 = noise.fractal(8, (f32)xx / 50.0f, (f32)yy0 / 50.0f) * 5.0f;
-	float h1 = noise.fractal(8, (f32)xx / 50.0f, (f32)yy1 / 50.0f) * 5.0f;
+	float h0 = mTerrain->getHeight(xx, yy0);
+	float h1 = mTerrain->getHeight(xx, yy1);
 
 	height = h0 + p * (h1 - h0);
 
-	vector3df n0 = calculateNormal(noise, xx, yy0, stepX, stepY);
-	vector3df n1 = calculateNormal(noise, xx, yy1, stepX, stepY);
+	//vector3df n0 = calculateNormal(xx, yy0, stepX, stepY);
+	//vector3df n1 = calculateNormal(xx, yy1, stepX, stepY);
 
-	normal = n0 + p * (n1 - n0);
+	//normal = n0 + p * (n1 - n0);
 }
 
-vector3df TerrainNode::calculateNormal(SimplexNoise &noise, irr::f32 x, irr::f32 y, irr::f32 stepX, irr::f32 stepY) {
+vector3df TerrainNode::calculateNormal(irr::f32 x, irr::f32 y, irr::f32 stepX, irr::f32 stepY) {
 	std::array<f32, 9> s;
 	vector3df n;
 	u32 i = 0;
 
 	for (int yy = -1; yy <= 1; yy++)
 		for (int xx = -1; xx <= 1; xx++)
-			s[i++] = noise.fractal(8, (x - (f32)xx * stepX) / 50.0f, (y - (f32)yy * stepY) / 50.0f);
+			s[i++] = mTerrain->getHeight((x - (f32)xx * stepX) / 50.0f, (y - (f32)yy * stepY) / 50.0f);
 
 	f32 scale = 0.02f;
 
