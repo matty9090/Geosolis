@@ -60,8 +60,9 @@ class App  {
 		
 		irr::IrrlichtDevice *mDevice;
 		irr::video::IVideoDriver *mDriver;
-		irr::scene::ISceneManager *mScene;
 		irr::gui::IGUIEnvironment *mGui;
+		irr::scene::ISceneManager *mScene;
+		irr::scene::ICameraSceneNode *mCamera;
 
 		irr::u32 dt;
 		irr::core::stringw mTitle;
