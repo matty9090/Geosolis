@@ -1,5 +1,6 @@
 #include <irr/irrlicht.h>
 #include <string>
+#include <map>
 
 #include "Terrain.hpp"
 
@@ -70,5 +71,12 @@ class App  {
 		Terrain *mTerrain;
 		EventReciever *mEventReciever;
 
+		std::map<std::string, irr::gui::IGUIStaticText*> mHUD;
+
 		void handleEvents();
+		void updateGUI();
+
+		template <class T> std::string vecToString(irr::core::vector3d<T> v);
+		std::string toString(float v);
+		std::wstring toMultiByte(std::string str);
 };
