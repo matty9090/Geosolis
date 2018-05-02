@@ -24,6 +24,7 @@ class TerrainNode {
 		void cleanup();
 		void notifyNeighbours();
 		void removeMarkers();
+		void setRotation(irr::core::vector3df rotation) { mRotation = rotation; }
 
 		irr::f32					 getHeight(int edge, int index) const;
 		irr::u32					 getDepth()						const { return mDepth; }
@@ -54,6 +55,7 @@ class TerrainNode {
 		std::vector<irr::core::vector3df> mHeights;
 		std::vector<irr::scene::ISceneNode*> mMarkers;
 
+		irr::core::vector3df mRotation;
 		irr::u32 mNumVertices, mNumIndices;
 
 		Terrain *mTerrain;

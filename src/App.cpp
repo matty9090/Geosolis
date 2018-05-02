@@ -25,13 +25,12 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(true) {
 	mGui    = mDevice->getGUIEnvironment();
 
 	mCamera = mScene->addCameraSceneNodeFPS(nullptr, 80.0f, 0.04f);
-	mCamera->setPosition(vector3df(0.0f, 100.0f, 0.0f));
-	mCamera->setRotation(vector3df(3.141f, 0.0f, 0.0f));
+	mCamera->setPosition(vector3df(0.0f, 0.0f, -300.0f));
+	mCamera->setRotation(vector3df(0.0f, 0.0f, 0.0f));
 
-	mScene->addLightSceneNode(nullptr, vector3df(0.0f, 20.0f, 0.0f));
+	mScene->addLightSceneNode(nullptr, vector3df(-150.0f, 150.0f, -150.0f), SColor(255, 255, 255, 255), 500);
 
 	mTerrain = new Terrain(mScene, mDriver, mCamera);
-	mTerrain->getTerrainNode()->setMaterialFlag(EMF_WIREFRAME, mWireframe);
 	TerrainNode::Wireframe = mWireframe;
 
 	IGUISkin *skin = mGui->getSkin();
@@ -95,11 +94,8 @@ void App::handleEvents() {
 	if (mEventReciever->KeyHit(KEY_F3)) {
 		mWireframe = !mWireframe;
 		TerrainNode::Wireframe = mWireframe;
-		mTerrain->getTerrainNode()->setMaterialFlag(EMF_WIREFRAME, mWireframe);
+		mTerrain->setMaterialFlag(EMF_WIREFRAME, mWireframe);
 	}
-
-	if (mEventReciever->KeyHit(KEY_F1)) mTerrain->getTerrainNode()->split();
-	if (mEventReciever->KeyHit(KEY_F2)) mTerrain->getTerrainNode()->merge();
 
 	if (mEventReciever->KeyHit(KEY_KEY_Q)) {
 		bool enabled = mCamera->isInputReceiverEnabled();
@@ -109,7 +105,7 @@ void App::handleEvents() {
 }
 
 void App::updateGUI() {
-	float depth = 11.0f - 4.6f * log10(mCamera->getPosition().Y + 2.0f);
+	float depth = 11.0f - 4.6f * log10(mCamera->getPosition().getDistanceFrom(vector3df()) - 202.0f);
 
 	mHUD["Camera"]->setText(toMultiByte("Camera: " + vecToString(mCamera->getPosition())).c_str());
 	mHUD["Depth"]->setText(toMultiByte("Depth: " + toString((s32)depth)).c_str());

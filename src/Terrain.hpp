@@ -1,5 +1,6 @@
 #include <irr/irrlicht.h>
 #include <noise/noise.h>
+#include <array>
 
 #include "noiseutils.h"
 
@@ -12,17 +13,19 @@ class Terrain {
 		Terrain(irr::scene::ISceneManager *scene, irr::video::IVideoDriver *driver, irr::scene::ICameraSceneNode *cam);
 		~Terrain();
 		
-		void update();
-		float getHeight(float x, float y);
+		enum EFace { Top, Bottom, Right, Left, Front, Back };
 
-		TerrainNode						*getTerrainNode()	const;
-		irr::scene::ISceneNode			*getSceneNode()		const;
-		irr::scene::ISceneManager		*getSceneManager()	const { return mScene; }
-		irr::video::IVideoDriver		*getVideoDriver()	const { return mDriver; }
-		irr::scene::ICameraSceneNode	*getCamera()		const { return mCamera; }
-
+		void							 update();
+		float							 getHeight(float x, float y)		const;
+		void							 setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value) const;
+		irr::core::vector3df			 project(irr::core::vector3df p)	const;
+		irr::scene::ISceneManager		*getSceneManager()					const { return mScene; }
+		irr::video::IVideoDriver		*getVideoDriver()					const { return mDriver; }
+		irr::scene::ICameraSceneNode	*getCamera()						const { return mCamera; }
+		
 	private:
-		TerrainNode *mRoot;
+		irr::core::rectf mBounds;
+		std::array<TerrainNode*, 6> mFaces;
 		utils::NoiseMap mHeightmap;
 		noise::module::Perlin mNoise;
 

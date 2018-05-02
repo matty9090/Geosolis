@@ -36,9 +36,9 @@ void TerrainNode::setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value) 
 }
 
 void TerrainNode::update() {
-	float distance	= mCentre.getDistanceFrom(mTerrain->getCamera()->getPosition());
+	float distance	= mTerrain->getCamera()->getPosition().getDistanceFrom(mCentre);
 
-	bool divide	= (11.0f - 4.6f * log10(distance + 2.0f) > (f32)mDepth);
+	bool divide	= (11.0f - 4.6f * log10(distance) > (f32)mDepth);
 
 	if (!divide)
 		merge();
@@ -326,6 +326,8 @@ void TerrainNode::createMesh() {
 	mSceneNode->setAutomaticCulling(EAC_OFF);
 	mSceneNode->setMaterialTexture(0, mTerrain->getVideoDriver()->getTexture("tex/grass.png"));
 	mSceneNode->setMaterialFlag(EMF_WIREFRAME, Wireframe);
+	mSceneNode->setMaterialFlag(EMF_LIGHTING, false);
+	mSceneNode->setRotation(mRotation);
 
 	mNumVertices = GRID_SIZE * GRID_SIZE;
 	mNumIndices	 = 6 * (GRID_SIZE - 1) * (GRID_SIZE - 1);
@@ -334,12 +336,16 @@ void TerrainNode::createMesh() {
 
 	mBuffer->Vertices.set_used(mNumVertices);
 	mBuffer->Indices.set_used(mNumIndices);
+	mBuffer->setHardwareMappingHint(EHM_STATIC);
 
 	createPlane(mBuffer);
 
 	mCentre = mBuffer->Vertices[mNumVertices / 2].Pos;
+	mCentre.rotateYZBy(mRotation.X, vector3df());
+	mCentre.rotateXZBy(mRotation.Y, vector3df());
+	mCentre.rotateXYBy(mRotation.Z, vector3df());
 
-	mBuffer->setHardwareMappingHint(EHM_STATIC);
+	//mCentre = vector3df(0, 0, 0);
 }
 
 void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
@@ -368,7 +374,9 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 			float xx = mBounds.UpperLeftCorner.X + x * stepX;
 			float yy = mBounds.UpperLeftCorner.Y + y * stepY;			
 			float height;
-			vector3df normal = vector3df(0.0f, 1.0f, 0.0f);
+
+			vector3df sphere = mTerrain->project(vector3df(xx, 0.5f, yy)).normalize();
+			vector3df normal = sphere;
 
 			if (details[North] > 1 && y == 0 && x > 0 && x < GRID_SIZE - 1 && (x % details[North] != 0))
 				fixDetailV(x, yy, details, stepX, stepY, height, normal, North);
@@ -384,10 +392,10 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 			}
 
 			S3DVertex &v = buf->Vertices[i++];
-			v.Pos.set(xx, height, yy);
+			v.Pos = sphere * 200.0f + normal * height;
 			v.Color.set(0x00aa00);
 			v.Normal = normal;
-			v.TCoords.set(x * stepX, y * stepY);
+			v.TCoords.set((x * stepX) * 50.0f, (y * stepY) * 50.0f);
 
 			//mHeights[i - 1] = v.Pos;
 
@@ -417,7 +425,6 @@ void TerrainNode::fixDetailV(int x, float yy, std::array<irr::s32, 4U> &details,
 	f32 p = r / (f32)details[dir];
 	f32 p0 = -r, p1 = (f32)details[dir] - r;
 
-	float xx  = mBounds.UpperLeftCorner.X + x * stepX;
 	float xx0 = mBounds.UpperLeftCorner.X + (x + p0) * stepX;
 	float xx1 = mBounds.UpperLeftCorner.X + (x + p1) * stepX;
 
@@ -437,7 +444,6 @@ void TerrainNode::fixDetailH(int y, float xx, std::array<irr::s32, 4U> &details,
 	f32 p = r / (f32)details[dir];
 	f32 p0 = -r, p1 = (f32)details[dir] - r;
 
-	float yy  = mBounds.UpperLeftCorner.Y + y * stepY;
 	float yy0 = mBounds.UpperLeftCorner.Y + (y + p0) * stepY;
 	float yy1 = mBounds.UpperLeftCorner.Y + (y + p1) * stepY;
 
