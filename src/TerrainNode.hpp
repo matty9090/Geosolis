@@ -17,7 +17,6 @@ class TerrainNode {
 		void init();
 		bool isVisible() { return mVisible; }
 		bool isLeaf() const { return mChildren[0] == nullptr; }
-		void setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value);
 		void update();
 		void split();
 		void merge();
@@ -25,7 +24,10 @@ class TerrainNode {
 		void cleanup();
 		void notifyNeighbours();
 		void removeMarkers();
+
+		void setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value);
 		void setRotation(irr::core::vector3df rotation) { mRotation = rotation; }
+		void setFaceNeighbours(TerrainNode *north, TerrainNode *east, TerrainNode *south, TerrainNode *west);
 
 		irr::f32					 getHeight(int edge, int index) const;
 		irr::f32					 getScale()						const { return 1.0f / (1 << mDepth); }
@@ -56,6 +58,7 @@ class TerrainNode {
 		irr::scene::ISceneNode *mSceneNode;
 
 		std::array<TerrainNode*, 4> mChildren;
+		std::array<TerrainNode*, 4> mTopNeighbours;
 		std::array<std::vector<irr::u32>, 4> mEdges;
 
 		std::vector<irr::core::vector3df> mHeights;

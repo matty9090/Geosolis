@@ -22,6 +22,13 @@ Terrain::Terrain(irr::scene::ISceneManager *scene, irr::video::IVideoDriver *dri
 	mFaces[Front ]->setRotation(vector3df( -90.0f, 0.0f,   0.0f));
 	mFaces[Back  ]->setRotation(vector3df(  90.0f, 0.0f,   0.0f));
 
+	mFaces[Top   ]->setFaceNeighbours(mFaces[Back ], mFaces[Right], mFaces[Front ], mFaces[Left ]);
+	mFaces[Bottom]->setFaceNeighbours(mFaces[Front], mFaces[Right], mFaces[Back  ], mFaces[Left ]);
+	mFaces[Right ]->setFaceNeighbours(mFaces[Top  ], mFaces[Back ], mFaces[Bottom], mFaces[Front]);
+	mFaces[Left  ]->setFaceNeighbours(mFaces[Top  ], mFaces[Front], mFaces[Bottom], mFaces[Back ]);
+	mFaces[Front ]->setFaceNeighbours(mFaces[Top  ], mFaces[Right], mFaces[Bottom], mFaces[Left ]);
+	mFaces[Back  ]->setFaceNeighbours(mFaces[Top  ], mFaces[Left ], mFaces[Bottom], mFaces[Right]);
+
 	for (auto &face : mFaces)
 		face->init();
 	

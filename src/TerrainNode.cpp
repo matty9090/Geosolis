@@ -35,6 +35,13 @@ void TerrainNode::setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value) 
 	}
 }
 
+void TerrainNode::setFaceNeighbours(TerrainNode *north, TerrainNode *east, TerrainNode *south, TerrainNode *west) {
+	mTopNeighbours[North] = north;
+	mTopNeighbours[East ] = east;
+	mTopNeighbours[South] = south;
+	mTopNeighbours[West ] = west;
+}
+
 void TerrainNode::update() {
 	float height = mTerrain->getCamera()->getPosition().getLength() - 196.0f;
 	float dist = mTerrain->getCamera()->getPosition().getDistanceFrom(mCentre) - mDiameter;
@@ -181,7 +188,7 @@ std::array<std::vector<TerrainNode*>, 4> TerrainNode::getSENeighbours() const {
 TerrainNode	*TerrainNode::getGENeighbourDir(int dir) const {
 	switch(dir) {
 		case North: {
-			if (!mParent) return nullptr;
+			if (!mParent) return mTopNeighbours[dir];
 			if (mParent->getChild(SW) == this) return mParent->getChild(NW);			
 			if (mParent->getChild(SE) == this) return mParent->getChild(NE);
 
@@ -196,7 +203,7 @@ TerrainNode	*TerrainNode::getGENeighbourDir(int dir) const {
 		}
 
 		case South: {
-			if (!mParent) return nullptr;
+			if (!mParent) return mTopNeighbours[dir];
 			if (mParent->getChild(NW) == this) return mParent->getChild(SW);
 			if (mParent->getChild(NE) == this) return mParent->getChild(SE);
 
@@ -211,7 +218,7 @@ TerrainNode	*TerrainNode::getGENeighbourDir(int dir) const {
 		}
 
 		case East: {
-			if (!mParent) return nullptr;
+			if (!mParent) return mTopNeighbours[dir];
 			if (mParent->getChild(NW) == this) return mParent->getChild(NE);
 			if (mParent->getChild(SW) == this) return mParent->getChild(SE);
 
@@ -226,7 +233,7 @@ TerrainNode	*TerrainNode::getGENeighbourDir(int dir) const {
 		}
 
 		case West: {
-			if (!mParent) return nullptr;
+			if (!mParent) return mTopNeighbours[dir];
 			if (mParent->getChild(NE) == this) return mParent->getChild(NW);
 			if (mParent->getChild(SE) == this) return mParent->getChild(SW);
 
