@@ -50,7 +50,8 @@ void Terrain::update() {
 }
 
 float Terrain::getHeight(float x, float y) const {
-	return (float)mNoise.GetValue((double)x / 50.0, (double)y / 50.0, 0.0) * 10.0f;
+	float h = (float)mNoise.GetValue((double)x * 10.0, (double)y * 10.0, 0.0) * 2.0f;
+	return h;
 }
 
 vector3df Terrain::project(vector3df p) const {

@@ -28,7 +28,7 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(false) {
 	mCamera->setPosition(vector3df(0.0f, 0.0f, -300.0f));
 	mCamera->setRotation(vector3df(0.0f, 0.0f, 0.0f));
 
-	mScene->addLightSceneNode(nullptr, vector3df(-150.0f, 150.0f, -150.0f), SColor(255, 255, 255, 255), 500);
+	mScene->addLightSceneNode(nullptr, vector3df(-500.0f, 500.0f, -500.0f), SColor(255, 255, 255, 255), 2000);
 
 	mTerrain = new Terrain(mScene, mDriver, mCamera);
 	TerrainNode::Wireframe = mWireframe;

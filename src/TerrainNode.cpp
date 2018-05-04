@@ -49,7 +49,11 @@ void TerrainNode::update() {
 		return;
 
 	float distance	= mTerrain->getCamera()->getPosition().getDistanceFrom(mCentre) / 200.0f;
-	bool divide		= distance < getScale() * 10.0f;
+	bool divide		= distance < getScale() * 9.0f;
+
+#ifdef _DEBUG
+	divide = distance < getScale() * 4.0f;
+#endif
 
 	if (!divide)
 		merge();
@@ -337,7 +341,7 @@ void TerrainNode::createMesh() {
 	mSceneNode->setAutomaticCulling(EAC_OFF);
 	mSceneNode->setMaterialTexture(0, mTerrain->getVideoDriver()->getTexture("tex/grass.png"));
 	mSceneNode->setMaterialFlag(EMF_WIREFRAME, Wireframe);
-	mSceneNode->setMaterialFlag(EMF_LIGHTING, false);
+	mSceneNode->setMaterialFlag(EMF_LIGHTING, true);
 	mSceneNode->setRotation(mRotation);
 
 	mNumVertices = GRID_SIZE * GRID_SIZE;
