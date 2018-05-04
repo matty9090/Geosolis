@@ -36,7 +36,7 @@ void TerrainNode::setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value) 
 }
 
 void TerrainNode::update() {
-	float height = mTerrain->getCamera()->getPosition().getLength() - 202.0f;
+	float height = mTerrain->getCamera()->getPosition().getLength() - 196.0f;
 	float dist = mTerrain->getCamera()->getPosition().getDistanceFrom(mCentre) - mDiameter;
 
 	float horizon = sqrtf(height * (2 * 200.0f + height));
@@ -54,7 +54,7 @@ void TerrainNode::update() {
 	if (!divide)
 		merge();
 
-	if (isLeaf() && divide && mDepth < 8) {
+	if (isLeaf() && divide && mDepth < 10) {
 		split();
 	} else if (!isLeaf()) {
 		for (auto child : mChildren)

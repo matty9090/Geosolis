@@ -40,11 +40,9 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(false) {
 	skin->setColor(EGDC_BUTTON_TEXT, SColor(255, 255, 255, 255));
 
 	IGUIStaticText *txtCam		= mGui->addStaticText(L"Camera: (0, 0, 0)", recti(10, 10, 600, 40));
-	IGUIStaticText *txtDepth	= mGui->addStaticText(L"Depth: 0", recti(10, 40, 600, 70));
-	IGUIStaticText *txtTri		= mGui->addStaticText(L"Triangles: 0", recti(10, 70, 600, 100));
+	IGUIStaticText *txtTri		= mGui->addStaticText(L"Triangles: 0", recti(10, 40, 600, 70));
 	
 	mHUD["Camera"]		= txtCam;
-	mHUD["Depth"]		= txtDepth;
 	mHUD["Triangles"]	= txtTri;
 }
 
@@ -63,6 +61,8 @@ int App::run() {
 		handleEvents();
 
 		mTerrain->update();
+
+		update();
 		updateGUI();
 		
 		mDriver->beginScene(true, true, SColor(0x000000));
@@ -104,11 +104,14 @@ void App::handleEvents() {
 	}
 }
 
-void App::updateGUI() {
-	float depth = 11.0f - 4.6f * log10(mCamera->getPosition().getDistanceFrom(vector3df()) - 202.0f);
+void App::update() {
+	float speed	= log((mCamera->getPosition().getDistanceFrom(vector3df()) + 4.0f) / 200.0f) / 5.0f;
+	ISceneNodeAnimatorCameraFPS *anim = (ISceneNodeAnimatorCameraFPS*)*mCamera->getAnimators().begin();
+	anim->setMoveSpeed(speed);
+}
 
+void App::updateGUI() {
 	mHUD["Camera"]->setText(toMultiByte("Camera: " + vecToString(mCamera->getPosition())).c_str());
-	mHUD["Depth"]->setText(toMultiByte("Depth: " + toString((s32)depth)).c_str());
 	mHUD["Triangles"]->setText(toMultiByte("Triangles: " + toString(TerrainNode::Triangles, 10)).c_str());
 }
 

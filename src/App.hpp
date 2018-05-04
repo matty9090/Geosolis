@@ -74,6 +74,7 @@ class App  {
 		std::map<std::string, irr::gui::IGUIStaticText*> mHUD;
 
 		void handleEvents();
+		void update();
 		void updateGUI();
 
 		std::wstring toMultiByte(std::string str);
