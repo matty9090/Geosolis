@@ -15,6 +15,7 @@ class TerrainNode {
 		enum EQuad { NE, NW, SE, SW };
 
 		void init();
+		bool isVisible() { return mVisible; }
 		bool isLeaf() const { return mChildren[0] == nullptr; }
 		void setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value);
 		void update();
@@ -27,7 +28,9 @@ class TerrainNode {
 		void setRotation(irr::core::vector3df rotation) { mRotation = rotation; }
 
 		irr::f32					 getHeight(int edge, int index) const;
+		irr::f32					 getScale()						const { return 1.0f / (1 << mDepth); }
 		irr::u32					 getDepth()						const { return mDepth; }
+		irr::core::vector3df		 getRotation()					const { return mParent ? mParent->getRotation() : mRotation; }
 		irr::scene::ISceneNode		*getSceneNode()					const { return mSceneNode; }
 		TerrainNode					*getChild(int quad)				const { return mChildren[quad]; };
 
@@ -40,7 +43,10 @@ class TerrainNode {
 		static irr::u64 Triangles;
 
 	private:
+		bool mVisible;
+
 		irr::u32 mDepth;
+		irr::f32 mDiameter;
 
 		irr::core::rectf mBounds;
 		irr::core::vector3df mCentre;

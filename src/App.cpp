@@ -11,7 +11,7 @@ using namespace video;
 using namespace io;
 using namespace gui;
 
-App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(true) {
+App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(false) {
 	mEventReciever = new EventReciever();
 	mDevice = createDevice(EDT_DIRECT3D9, dimension2d<u32>(1280, 960), 32, false, false, false, mEventReciever);
 

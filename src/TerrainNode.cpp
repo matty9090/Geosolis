@@ -36,14 +36,25 @@ void TerrainNode::setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value) 
 }
 
 void TerrainNode::update() {
-	float distance	= mTerrain->getCamera()->getPosition().getDistanceFrom(mCentre);
+	float height = mTerrain->getCamera()->getPosition().getLength() - 202.0f;
+	float dist = mTerrain->getCamera()->getPosition().getDistanceFrom(mCentre) - mDiameter;
 
-	bool divide	= (11.0f - 4.6f * log10(distance) > (f32)mDepth);
+	float horizon = sqrtf(height * (2 * 200.0f + height));
+
+	mVisible = dist < horizon;
+
+	mSceneNode->setVisible(mVisible);
+
+	if (!mVisible)
+		return;
+
+	float distance	= mTerrain->getCamera()->getPosition().getDistanceFrom(mCentre) / 200.0f;
+	bool divide		= distance < getScale() * 10.0f;
 
 	if (!divide)
 		merge();
 
-	if (isLeaf() && divide && mDepth < 6) {
+	if (isLeaf() && divide && mDepth < 8) {
 		split();
 	} else if (!isLeaf()) {
 		for (auto child : mChildren)
@@ -340,12 +351,13 @@ void TerrainNode::createMesh() {
 
 	createPlane(mBuffer);
 
-	mCentre = mBuffer->Vertices[mNumVertices / 2].Pos;
-	mCentre.rotateYZBy(mRotation.X, vector3df());
-	mCentre.rotateXZBy(mRotation.Y, vector3df());
-	mCentre.rotateXYBy(mRotation.Z, vector3df());
-
-	//mCentre = vector3df(0, 0, 0);
+	mCentre = mBuffer->Vertices[(mNumVertices - 1) / 2].Pos;
+	
+	matrix4 rot;
+	rot.setRotationDegrees(getRotation());
+	rot.rotateVect(mCentre);
+	
+	mDiameter = (mBuffer->Vertices[0].Pos - mBuffer->Vertices[GRID_SIZE - 1].Pos).getLength();
 }
 
 void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
