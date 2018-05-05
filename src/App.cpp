@@ -91,6 +91,9 @@ void App::handleEvents() {
 	if (mEventReciever->KeyHit(KEY_ESCAPE))
 		mDevice->closeDevice();
 
+	if (mEventReciever->KeyHit(KEY_F2))
+		TerrainNode::Normals = !TerrainNode::Normals;
+
 	if (mEventReciever->KeyHit(KEY_F3)) {
 		mWireframe = !mWireframe;
 		TerrainNode::Wireframe = mWireframe;

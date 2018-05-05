@@ -42,6 +42,7 @@ class TerrainNode {
 		std::vector<TerrainNode*>					 getSENeighboursDir(TerrainNode *neighbour, int dir) const;
 
 		static bool Wireframe;
+		static bool Normals;
 		static irr::u64 Triangles;
 
 	private:

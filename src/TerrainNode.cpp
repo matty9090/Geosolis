@@ -9,8 +9,9 @@ using namespace irr::core;
 using namespace irr::scene;
 using namespace irr::video;
 
-u64  TerrainNode::Triangles = 0U;
-bool TerrainNode::Wireframe = false;
+u64  TerrainNode::Triangles	= 0U;
+bool TerrainNode::Normals	= false;
+bool TerrainNode::Wireframe	= false;
 
 TerrainNode::TerrainNode(TerrainNode *parent, Terrain *terrain, irr::core::rectf bounds)
   : mParent(parent),
@@ -56,10 +57,10 @@ void TerrainNode::update() {
 		return;
 
 	float distance	= mTerrain->getCamera()->getPosition().getDistanceFrom(mCentre) / 200.0f;
-	bool divide		= distance < getScale() * 9.0f;
+	bool divide		= distance < getScale() * 8.0f;
 
 #ifdef _DEBUG
-	divide = distance < getScale() * 4.0f;
+	divide = distance < getScale() * 3.5f;
 #endif
 
 	if (!divide)
@@ -410,13 +411,15 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 			else if (details[East] > 1 && x == GRID_SIZE - 1 && y > 0 && y < GRID_SIZE - 1 && (y % details[East] != 0))
 				fixDetailH(y, xx, details, stepX, stepY, height, normal, East);
 			else {
-				//normal = calculateNormal(xx, yy, stepX, stepY);
+				if(Normals)
+					normal = calculateNormal(xx, yy, stepX, stepY);
+				
 				height = mTerrain->getHeight(xx, yy);
 			}
 
 			S3DVertex &v = buf->Vertices[i++];
-			v.Pos = sphere * 200.0f + normal * height;
-			v.Color.set(0x00aa00);
+			v.Pos = sphere * 200.0f + sphere * height;
+			v.Color.set(0x008800);
 			v.Normal = normal;
 			v.TCoords.set((x * stepX) * 50.0f, (y * stepY) * 50.0f);
 
@@ -456,10 +459,12 @@ void TerrainNode::fixDetailV(int x, float yy, std::array<irr::s32, 4U> &details,
 
 	height = h0 + p * (h1 - h0);
 
-	//vector3df n0 = calculateNormal(xx0, yy, stepX, stepY);
-	//vector3df n1 = calculateNormal(xx1, yy, stepX, stepY);
+	if (Normals) {
+		vector3df n0 = calculateNormal(xx0, yy, stepX, stepY);
+		vector3df n1 = calculateNormal(xx1, yy, stepX, stepY);
 
-	//normal = n0 + p * (n1 - n0);
+		normal = n0 + p * (n1 - n0);
+	}
 }
 
 void TerrainNode::fixDetailH(int y, float xx, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir) {
@@ -475,10 +480,12 @@ void TerrainNode::fixDetailH(int y, float xx, std::array<irr::s32, 4U> &details,
 
 	height = h0 + p * (h1 - h0);
 
-	//vector3df n0 = calculateNormal(xx, yy0, stepX, stepY);
-	//vector3df n1 = calculateNormal(xx, yy1, stepX, stepY);
+	if (Normals) {
+		vector3df n0 = calculateNormal(xx, yy0, stepX, stepY);
+		vector3df n1 = calculateNormal(xx, yy1, stepX, stepY);
 
-	//normal = n0 + p * (n1 - n0);
+		normal = n0 + p * (n1 - n0);
+	}
 }
 
 vector3df TerrainNode::calculateNormal(irr::f32 x, irr::f32 y, irr::f32 stepX, irr::f32 stepY) {
@@ -488,7 +495,7 @@ vector3df TerrainNode::calculateNormal(irr::f32 x, irr::f32 y, irr::f32 stepX, i
 
 	for (int yy = -1; yy <= 1; yy++)
 		for (int xx = -1; xx <= 1; xx++)
-			s[i++] = mTerrain->getHeight((x - (f32)xx * stepX) / 50.0f, (y - (f32)yy * stepY) / 50.0f);
+			s[i++] = mTerrain->getHeight((x - (f32)xx * stepX), (y - (f32)yy * stepY));
 
 	f32 scale = 0.02f;
 
