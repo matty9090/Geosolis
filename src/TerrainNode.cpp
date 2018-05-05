@@ -347,10 +347,9 @@ void TerrainNode::createMesh() {
 	mSceneNode = mTerrain->getSceneManager()->addMeshSceneNode(mMesh, parent);
 	mSceneNode->setMaterialFlag(EMF_BACK_FACE_CULLING, false);
 	mSceneNode->setAutomaticCulling(EAC_OFF);
-	mSceneNode->setMaterialTexture(0, mTerrain->getVideoDriver()->getTexture("tex/grass.png"));
+	mSceneNode->setMaterialTexture(0, mTerrain->getVideoDriver()->getTexture("tex/Earth.jpg"));
 	mSceneNode->setMaterialFlag(EMF_WIREFRAME, Wireframe);
 	mSceneNode->setMaterialFlag(EMF_LIGHTING, true);
-	mSceneNode->setRotation(mRotation);
 
 	mNumVertices = GRID_SIZE * GRID_SIZE;
 	mNumIndices	 = 6 * (GRID_SIZE - 1) * (GRID_SIZE - 1);
@@ -364,11 +363,6 @@ void TerrainNode::createMesh() {
 	createPlane(mBuffer);
 
 	mCentre = mBuffer->Vertices[(mNumVertices - 1) / 2].Pos;
-	
-	matrix4 rot;
-	rot.setRotationDegrees(getRotation());
-	rot.rotateVect(mCentre);
-	
 	mDiameter = (mBuffer->Vertices[0].Pos - mBuffer->Vertices[GRID_SIZE - 1].Pos).getLength();
 }
 
@@ -393,6 +387,9 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 
 	//mHeights.resize(mNumVertices);
 
+	matrix4 rot;
+	rot.setRotationDegrees(getRotation());
+
 	for (int y = 0; y < GRID_SIZE; ++y) {
 		for (int x = 0; x < GRID_SIZE; ++x) {
 			float xx = mBounds.UpperLeftCorner.X + x * stepX;
@@ -400,6 +397,8 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 			float height;
 
 			vector3df sphere = mTerrain->project(vector3df(xx, 0.5f, yy)).normalize();
+			rot.rotateVect(sphere);
+
 			vector3df normal = sphere;
 
 			if (details[North] > 1 && y == 0 && x > 0 && x < GRID_SIZE - 1 && (x % details[North] != 0))
@@ -419,9 +418,13 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 
 			S3DVertex &v = buf->Vertices[i++];
 			v.Pos = sphere * 200.0f + sphere * height;
-			v.Color.set(0x008800);
+			v.Color.set(0xFFFFFFFF);
 			v.Normal = normal;
-			v.TCoords.set((x * stepX) * 50.0f, (y * stepY) * 50.0f);
+			//v.TCoords.set((x * stepX) * 50.0f, (y * stepY) * 50.0f);
+			
+			f32 tu = (atan2(sphere.Z, sphere.X) / PI + 1.0f) * 0.5f;
+			f32 tv = 0.5f - (asinf(sphere.Y) / PI);
+			v.TCoords.set(tu, tv);
 
 			//mHeights[i - 1] = v.Pos;
 
