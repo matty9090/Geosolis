@@ -422,9 +422,9 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 			v.Color.set(0xFFFFFF);
 			v.Normal = normal;
 			
-			f32 tu = 0.5f + (atan2(sphere.Z, sphere.X) / (2.0f * PI));
-			f32 tv = 0.5f - (asinf(sphere.Y) / PI);
-			v.TCoords.set(tu, tv);
+			//f32 tu = 0.5f + (atan2(sphere.Z, sphere.X) / (2.0f * PI));
+			//f32 tv = 0.5f - (asinf(sphere.Y) / PI);
+			//v.TCoords.set(tu, tv);
 
 			//mHeights[i - 1] = v.Pos;
 

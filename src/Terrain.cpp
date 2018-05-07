@@ -15,10 +15,11 @@ Terrain::Terrain(irr::scene::ISceneManager *scene, irr::video::IVideoDriver *dri
 	//generateHeightmap();
 
 	mGPU = mDriver->getGPUProgrammingServices();
+	mDriver->setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, false);
 
 	TerrainShader *terrainShader = new TerrainShader(this);
 
-	mMaterialType = mGPU->addHighLevelShaderMaterialFromFiles("shaders/VertexShader.fx", "main", EVST_VS_2_0, "shaders/PixelShader.fx", "main", EPST_PS_2_0, terrainShader, EMT_SOLID);
+	mMaterialType = mGPU->addHighLevelShaderMaterialFromFiles("shaders/VertexShader.fx", "main", EVST_VS_3_0, "shaders/PixelShader.fx", "main", EPST_PS_3_0, terrainShader, EMT_SOLID);
 	terrainShader->drop();
 
 	for (auto &face : mFaces)
