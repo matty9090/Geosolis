@@ -18,12 +18,14 @@ class Terrain {
 		void							 update();
 		float							 getHeight(float x, float y)		const;
 		void							 setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value) const;
+		irr::s32						 getMaterialType()					const { return mMaterialType; }
 		irr::core::vector3df			 project(irr::core::vector3df p)	const;
 		irr::scene::ISceneManager		*getSceneManager()					const { return mScene; }
 		irr::video::IVideoDriver		*getVideoDriver()					const { return mDriver; }
 		irr::scene::ICameraSceneNode	*getCamera()						const { return mCamera; }
 		
 	private:
+		irr::s32 mMaterialType;
 		irr::core::rectf mBounds;
 		std::array<TerrainNode*, 6> mFaces;
 		utils::NoiseMap mHeightmap;
@@ -32,4 +34,19 @@ class Terrain {
 		irr::video::IVideoDriver  *mDriver;
 		irr::scene::ISceneManager *mScene;
 		irr::scene::ICameraSceneNode *mCamera;
+		irr::video::IGPUProgrammingServices *mGPU;
+
+		void generateHeightmap();
+};
+
+class TerrainShader : public irr::video::IShaderConstantSetCallBack {
+	public:
+		TerrainShader(Terrain *terrain) : mTerrain(terrain) {}
+
+		virtual void OnSetConstants(irr::video::IMaterialRendererServices* services, irr::s32 userData);
+		virtual void OnSetMaterial(const irr::video::SMaterial &material) { mMaterial = &material; }
+
+	private:
+		Terrain *mTerrain;
+		const irr::video::SMaterial *mMaterial;
 };

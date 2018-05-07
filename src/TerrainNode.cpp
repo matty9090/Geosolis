@@ -57,7 +57,7 @@ void TerrainNode::update() {
 		return;
 
 	float distance	= mTerrain->getCamera()->getPosition().getDistanceFrom(mCentre) / 200.0f;
-	bool divide		= distance < getScale() * 8.0f;
+	bool divide		= distance < getScale() * 7.0f;
 
 #ifdef _DEBUG
 	divide = distance < getScale() * 3.5f;
@@ -347,10 +347,11 @@ void TerrainNode::createMesh() {
 	mSceneNode = mTerrain->getSceneManager()->addMeshSceneNode(mMesh, parent);
 	mSceneNode->setMaterialFlag(EMF_BACK_FACE_CULLING, false);
 	mSceneNode->setAutomaticCulling(EAC_OFF);
-	mSceneNode->setMaterialTexture(0, mTerrain->getVideoDriver()->getTexture("tex/Earth.jpg"));
+	mSceneNode->setMaterialTexture(0, mTerrain->getVideoDriver()->getTexture("tex/Heightmap.bmp"));
 	mSceneNode->setMaterialFlag(EMF_WIREFRAME, Wireframe);
-	mSceneNode->setMaterialFlag(EMF_LIGHTING, true);
-
+	mSceneNode->setMaterialFlag(EMF_LIGHTING, false);
+	mSceneNode->setMaterialType((E_MATERIAL_TYPE)mTerrain->getMaterialType());
+	
 	mNumVertices = GRID_SIZE * GRID_SIZE;
 	mNumIndices	 = 6 * (GRID_SIZE - 1) * (GRID_SIZE - 1);
 
@@ -418,11 +419,10 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 
 			S3DVertex &v = buf->Vertices[i++];
 			v.Pos = sphere * 200.0f + sphere * height;
-			v.Color.set(0xFFFFFFFF);
+			v.Color.set(0xFFFFFF);
 			v.Normal = normal;
-			//v.TCoords.set((x * stepX) * 50.0f, (y * stepY) * 50.0f);
 			
-			f32 tu = (atan2(sphere.Z, sphere.X) / PI + 1.0f) * 0.5f;
+			f32 tu = 0.5f + (atan2(sphere.Z, sphere.X) / (2.0f * PI));
 			f32 tv = 0.5f - (asinf(sphere.Y) / PI);
 			v.TCoords.set(tu, tv);
 

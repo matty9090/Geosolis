@@ -32,7 +32,7 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(false) {
 
 	mTerrain = new Terrain(mScene, mDriver, mCamera);
 	TerrainNode::Wireframe = mWireframe;
-
+	
 	IGUISkin *skin = mGui->getSkin();
 	IGUIFont *font = mGui->getFont("fonts/Consolas/Consolas.xml");
 
