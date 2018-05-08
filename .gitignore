@@ -20,7 +20,6 @@
 x64/
 x86/
 bld/
-[Bb]in/
 [Oo]bj/
 [Ll]og/
 
@@ -299,7 +298,5 @@ __pycache__/
 *.xsd.cs
 
 build/
-Geosolis.sln
-Geosolis.vcxproj
-Geosolis.vcxproj.filters
-*.dll
+/irrlicht.dll
+/libnoise.dll
