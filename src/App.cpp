@@ -26,10 +26,10 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(false) {
 
 	mCamera = mScene->addCameraSceneNodeFPS(nullptr, 80.0f, 0.04f);
 	mCamera->setNearValue(0.01f);
-	mCamera->setPosition(vector3df(0.0f, 0.0f, -300.0f));
+	mCamera->setPosition(vector3df(0.0f, 0.0f, -500.0f));
 	mCamera->setRotation(vector3df(0.0f, 0.0f, 0.0f));
 
-	mScene->addLightSceneNode(nullptr, vector3df(-500.0f, 500.0f, -500.0f), SColor(255, 255, 255, 255), 2000);
+	mScene->addLightSceneNode(nullptr, vector3df(-2500.0f, 2500.0f, -2500.0f), SColor(255, 255, 255, 255), 10000);
 
 	TerrainNode::Wireframe = mWireframe;
 	
@@ -46,6 +46,13 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(false) {
 	mHUD["Triangles"]	= txtTri;
 
 	mPlanets.push_back(new Planet(mDevice, 5.972e24, 6371e3));
+	mPlanets.push_back(new Planet(mDevice, 7.342e22, 1727e3));
+
+	mPlanets[1]->setPosition(vector3df(1000.0f, 0.0f, 0.0f));
+	mPlanets[1]->setVelocity(vector3df(0.0f, 0.0f, 0.1f));
+	mPlanets[1]->addInflucence(mPlanets[0]);
+
+	mActivePlanet = mPlanets[0];
 }
 
 App::~App() {
@@ -109,7 +116,7 @@ void App::handleEvents() {
 }
 
 void App::update() {
-	float speed	= log((mCamera->getPosition().getDistanceFrom(vector3df()) + 4.0f) / 200.0f) / 5.0f;
+	float speed	= log((mCamera->getPosition().getDistanceFrom(vector3df()) + 4.0f) / (mActivePlanet->getTerrain()->getRadius())) / 5.0f;
 	ISceneNodeAnimatorCameraFPS *anim = (ISceneNodeAnimatorCameraFPS*)*mCamera->getAnimators().begin();
 	anim->setMoveSpeed(speed);
 

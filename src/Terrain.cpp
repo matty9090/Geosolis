@@ -52,6 +52,13 @@ Terrain::~Terrain() {
 	}
 }
 
+void Terrain::setPosition(vector3df pos) {
+	mPosition = pos;
+
+	for (auto &face : mFaces)
+		face->getSceneNode()->setPosition(pos);
+}
+
 void Terrain::update() {
 	for (auto &face : mFaces)
 		face->update();

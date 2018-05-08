@@ -44,10 +44,10 @@ void TerrainNode::setFaceNeighbours(TerrainNode *north, TerrainNode *east, Terra
 }
 
 void TerrainNode::update() {
-	float height = mTerrain->getCamera()->getPosition().getLength() - 196.0f;
-	float dist = mTerrain->getCamera()->getPosition().getDistanceFrom(mCentre) - mDiameter;
+	float height = (mTerrain->getCamera()->getPosition() - mTerrain->getPosition()).getLength() - (mTerrain->getRadius() * (1 - 0.01f));
+	float dist = mTerrain->getCamera()->getPosition().getDistanceFrom(mCentre + mTerrain->getPosition()) - mDiameter;
 
-	float horizon = sqrtf(height * (2 * 200.0f + height));
+	float horizon = sqrtf(height * (2 * mTerrain->getRadius() + height));
 
 	mVisible = dist < horizon;
 
@@ -56,11 +56,11 @@ void TerrainNode::update() {
 	if (!mVisible)
 		return;
 
-	float distance	= mTerrain->getCamera()->getPosition().getDistanceFrom(mCentre) / 200.0f;
+	float distance	= mTerrain->getCamera()->getPosition().getDistanceFrom(mCentre + mTerrain->getPosition()) / mTerrain->getRadius();
 	bool divide		= distance < getScale() * 3.0f;
 
 #ifdef _DEBUG
-	divide = distance < getScale() * 3.5f;
+	divide = distance < getScale() * 2.5f;
 #endif
 
 	if (!divide)
@@ -351,7 +351,10 @@ void TerrainNode::createMesh() {
 	mSceneNode->setMaterialFlag(EMF_WIREFRAME, Wireframe);
 	mSceneNode->setMaterialFlag(EMF_LIGHTING, false);
 	mSceneNode->setMaterialType((E_MATERIAL_TYPE)mTerrain->getMaterialType());
-	
+
+	if (!mParent)
+		mSceneNode->setPosition(mTerrain->getPosition());
+
 	mNumVertices = GRID_SIZE * GRID_SIZE;
 	mNumIndices	 = 6 * (GRID_SIZE - 1) * (GRID_SIZE - 1);
 
@@ -421,7 +424,7 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 			//}
 
 			S3DVertex &v = buf->Vertices[i++];
-			v.Pos = sphere * 200.0f + sphere * height;
+			v.Pos = (sphere * mTerrain->getRadius()) + (sphere * height);
 			v.Color.set(0xFFFFFF);
 			v.Normal = normal;
 

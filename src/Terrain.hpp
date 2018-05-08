@@ -15,8 +15,11 @@ class Terrain {
 		
 		enum EFace { Top, Bottom, Right, Left, Front, Back };
 
+		void							 setPosition(irr::core::vector3df pos);
+		irr::core::vector3df			 getPosition()						const { return mPosition; }
 		void							 update();
-		float							 getHeight(float x, float y)		const;
+		irr::f32						 getRadius()						const { return mRadius; }
+		irr::f32						 getHeight(float x, float y)		const;
 		void							 setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value) const;
 		irr::s32						 getMaterialType()					const { return mMaterialType; }
 		irr::core::vector3df			 project(irr::core::vector3df p)	const;
@@ -27,6 +30,7 @@ class Terrain {
 	private:
 		irr::f32 mRadius;
 		irr::s32 mMaterialType;
+		irr::core::vector3df mPosition;
 		irr::core::rectf mBounds;
 		std::array<TerrainNode*, 6> mFaces;
 		utils::NoiseMap mHeightmap;

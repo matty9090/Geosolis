@@ -66,11 +66,12 @@ class App  {
 		irr::scene::ISceneManager *mScene;
 		irr::scene::ICameraSceneNode *mCamera;
 
-		irr::f32 dt;
+		irr::s32 dt;
 		irr::core::stringw mTitle;
 
 		EventReciever *mEventReciever;
 
+		Planet *mActivePlanet;
 		std::vector<Planet*> mPlanets;
 		std::map<std::string, irr::gui::IGUIStaticText*> mHUD;
 
