@@ -1,8 +1,9 @@
 #include <irr/irrlicht.h>
 #include <string>
 #include <map>
+#include <vector>
 
-#include "Terrain.hpp"
+#include "Planet.hpp"
 
 class EventReciever : public irr::IEventReceiver {
 	public:
@@ -65,12 +66,12 @@ class App  {
 		irr::scene::ISceneManager *mScene;
 		irr::scene::ICameraSceneNode *mCamera;
 
-		irr::u32 dt;
+		irr::f32 dt;
 		irr::core::stringw mTitle;
 
-		Terrain *mTerrain;
 		EventReciever *mEventReciever;
 
+		std::vector<Planet*> mPlanets;
 		std::map<std::string, irr::gui::IGUIStaticText*> mHUD;
 
 		void handleEvents();

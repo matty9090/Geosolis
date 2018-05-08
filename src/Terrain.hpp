@@ -10,7 +10,7 @@ class TerrainNode;
 
 class Terrain {
 	public:
-		Terrain(irr::scene::ISceneManager *scene, irr::video::IVideoDriver *driver, irr::scene::ICameraSceneNode *cam);
+		Terrain(irr::IrrlichtDevice *device, irr::f32 radius);
 		~Terrain();
 		
 		enum EFace { Top, Bottom, Right, Left, Front, Back };
@@ -22,9 +22,10 @@ class Terrain {
 		irr::core::vector3df			 project(irr::core::vector3df p)	const;
 		irr::scene::ISceneManager		*getSceneManager()					const { return mScene; }
 		irr::video::IVideoDriver		*getVideoDriver()					const { return mDriver; }
-		irr::scene::ICameraSceneNode	*getCamera()						const { return mCamera; }
+		irr::scene::ICameraSceneNode	*getCamera()						const { return mScene->getActiveCamera(); }
 		
 	private:
+		irr::f32 mRadius;
 		irr::s32 mMaterialType;
 		irr::core::rectf mBounds;
 		std::array<TerrainNode*, 6> mFaces;
@@ -33,7 +34,6 @@ class Terrain {
 
 		irr::video::IVideoDriver  *mDriver;
 		irr::scene::ISceneManager *mScene;
-		irr::scene::ICameraSceneNode *mCamera;
 		irr::video::IGPUProgrammingServices *mGPU;
 
 		void generateHeightmap();

@@ -31,7 +31,6 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(false) {
 
 	mScene->addLightSceneNode(nullptr, vector3df(-500.0f, 500.0f, -500.0f), SColor(255, 255, 255, 255), 2000);
 
-	mTerrain = new Terrain(mScene, mDriver, mCamera);
 	TerrainNode::Wireframe = mWireframe;
 	
 	IGUISkin *skin = mGui->getSkin();
@@ -45,12 +44,16 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(false) {
 	
 	mHUD["Camera"]		= txtCam;
 	mHUD["Triangles"]	= txtTri;
+
+	mPlanets.push_back(new Planet(mDevice, 5.972e24, 6371e3));
 }
 
 App::~App() {
 	mDevice->drop();
 
-	delete mTerrain;
+	for (auto &planet : mPlanets)
+		delete planet;
+
 	delete mEventReciever;
 }
 
@@ -60,8 +63,6 @@ int App::run() {
 
 	while (mDevice->run()) {
 		handleEvents();
-
-		mTerrain->update();
 
 		update();
 		updateGUI();
@@ -98,7 +99,6 @@ void App::handleEvents() {
 	if (mEventReciever->KeyHit(KEY_F3)) {
 		mWireframe = !mWireframe;
 		TerrainNode::Wireframe = mWireframe;
-		mTerrain->setMaterialFlag(EMF_WIREFRAME, mWireframe);
 	}
 
 	if (mEventReciever->KeyHit(KEY_KEY_Q)) {
@@ -112,6 +112,9 @@ void App::update() {
 	float speed	= log((mCamera->getPosition().getDistanceFrom(vector3df()) + 4.0f) / 200.0f) / 5.0f;
 	ISceneNodeAnimatorCameraFPS *anim = (ISceneNodeAnimatorCameraFPS*)*mCamera->getAnimators().begin();
 	anim->setMoveSpeed(speed);
+
+	for (auto &planet : mPlanets)
+		planet->update(dt);
 }
 
 void App::updateGUI() {

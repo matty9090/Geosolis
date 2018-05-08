@@ -8,8 +8,11 @@ using namespace irr::core;
 using namespace irr::scene;
 using namespace irr::video;
 
-Terrain::Terrain(irr::scene::ISceneManager *scene, irr::video::IVideoDriver *driver, irr::scene::ICameraSceneNode *cam)
-	: mScene(scene), mDriver(driver), mCamera(cam), mBounds(-0.5f, -0.5f, 0.5f, 0.5f)
+Terrain::Terrain(irr::IrrlichtDevice *device, irr::f32 radius)
+	: mScene(device->getSceneManager()),
+	mDriver(device->getVideoDriver()),
+	mBounds(-0.5f, -0.5f, 0.5f, 0.5f),
+	mRadius(radius)
 {
 	//generateHeightmap();
 	
