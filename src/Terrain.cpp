@@ -80,7 +80,7 @@ void Terrain::generateHeightmap() {
 	builder.SetBounds(-90.0, 90.0, -180.0, 180.0);
 	builder.Build();*/
 
-	mNoise.SetOctaveCount(10);
+	mNoise.SetOctaveCount(14);
 
 	utils::NoiseMapBuilderSphere heightMapBuilder;
 	heightMapBuilder.SetSourceModule(mNoise);

@@ -402,7 +402,10 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 
 			vector3df normal = sphere;
 
-			if (details[North] > 1 && y == 0 && x > 0 && x < GRID_SIZE - 1 && (x % details[North] != 0))
+			f32 tu = 0.5f + (atan2(sphere.Z, sphere.X) / (2.0f * PI));
+			f32 tv = 0.5f - (asinf(sphere.Y) / PI);
+
+			/*if (details[North] > 1 && y == 0 && x > 0 && x < GRID_SIZE - 1 && (x % details[North] != 0))
 				fixDetailV(x, yy, details, stepX, stepY, height, normal, North);
 			else if(details[South] > 1 && y == GRID_SIZE - 1 && x > 0 && x < GRID_SIZE - 1 && (x % details[South] != 0))
 				fixDetailV(x, yy, details, stepX, stepY, height, normal, South);
@@ -410,21 +413,17 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 				fixDetailH(y, xx, details, stepX, stepY, height, normal, West);
 			else if (details[East] > 1 && x == GRID_SIZE - 1 && y > 0 && y < GRID_SIZE - 1 && (y % details[East] != 0))
 				fixDetailH(y, xx, details, stepX, stepY, height, normal, East);
-			else {
+			else {*/
 				if(Normals)
 					normal = calculateNormal(xx, yy, stepX, stepY);
 				
-				height = mTerrain->getHeight(xx, yy);
-			}
+				height = mTerrain->getHeight(tu, tv);
+			//}
 
 			S3DVertex &v = buf->Vertices[i++];
 			v.Pos = sphere * 200.0f + sphere * height;
 			v.Color.set(0xFFFFFF);
 			v.Normal = normal;
-			
-			//f32 tu = 0.5f + (atan2(sphere.Z, sphere.X) / (2.0f * PI));
-			//f32 tv = 0.5f - (asinf(sphere.Y) / PI);
-			//v.TCoords.set(tu, tv);
 
 			//mHeights[i - 1] = v.Pos;
 
