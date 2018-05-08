@@ -57,7 +57,7 @@ void TerrainNode::update() {
 		return;
 
 	float distance	= mTerrain->getCamera()->getPosition().getDistanceFrom(mCentre) / 200.0f;
-	bool divide		= distance < getScale() * 7.0f;
+	bool divide		= distance < getScale() * 3.0f;
 
 #ifdef _DEBUG
 	divide = distance < getScale() * 3.5f;

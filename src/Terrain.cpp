@@ -1,5 +1,4 @@
 #include "Terrain.hpp"
-#include "SimplexNoise.hpp"
 #include "TerrainNode.hpp"
 
 #include <iostream>
@@ -13,7 +12,7 @@ Terrain::Terrain(irr::scene::ISceneManager *scene, irr::video::IVideoDriver *dri
 	: mScene(scene), mDriver(driver), mCamera(cam), mBounds(-0.5f, -0.5f, 0.5f, 0.5f)
 {
 	//generateHeightmap();
-
+	
 	mGPU = mDriver->getGPUProgrammingServices();
 	mDriver->setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, false);
 
@@ -69,7 +68,8 @@ vector3df Terrain::project(vector3df p) const {
 }
 
 void Terrain::generateHeightmap() {
-	/*mNoise.SetFrequency(1.0f);
+	mNoise.SetOctaveCount(14);
+	mNoise.SetFrequency(1.0f);
 	mNoise.SetPersistence(0.5f);
 	mNoise.SetLacunarity(2.0f);
 
@@ -78,19 +78,17 @@ void Terrain::generateHeightmap() {
 	builder.SetDestNoiseMap(mHeightmap);
 	builder.SetDestSize(512, 256);
 	builder.SetBounds(-90.0, 90.0, -180.0, 180.0);
-	builder.Build();*/
-
-	mNoise.SetOctaveCount(14);
-
-	utils::NoiseMapBuilderSphere heightMapBuilder;
-	heightMapBuilder.SetSourceModule(mNoise);
-	heightMapBuilder.SetDestNoiseMap(mHeightmap);
-	heightMapBuilder.SetDestSize(2048, 1024);
-	heightMapBuilder.SetBounds(-90.0, 90.0, -180.0, 180.0);
-	heightMapBuilder.Build();
+	builder.Build();
 
 	utils::RendererImage renderer;
 	utils::Image image;
+	utils::NoiseMapBuilderSphere heightMapBuilder;
+
+	heightMapBuilder.SetSourceModule(mNoise);
+	heightMapBuilder.SetDestNoiseMap(mHeightmap);
+	heightMapBuilder.SetDestSize(4096, 2048);
+	heightMapBuilder.SetBounds(-90.0, 90.0, -180.0, 180.0);
+	heightMapBuilder.Build();
 
 	renderer.SetSourceNoiseMap(mHeightmap);
 	renderer.SetDestImage(image);

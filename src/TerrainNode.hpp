@@ -2,8 +2,6 @@
 #include <array>
 #include <vector>
 
-#include "SimplexNoise.hpp"
-
 class Terrain;
 
 class TerrainNode {
