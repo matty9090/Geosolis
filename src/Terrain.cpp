@@ -52,6 +52,13 @@ Terrain::~Terrain() {
 	}
 }
 
+void Terrain::rotate(vector3df rot) {
+	mRotation += rot;
+
+	for (auto &face : mFaces)
+		face->getSceneNode()->setRotation(mRotation);
+}
+
 void Terrain::setPosition(vector3df pos) {
 	mPosition = pos;
 
@@ -130,23 +137,21 @@ void Terrain::setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value) cons
 void TerrainShader::OnSetConstants(IMaterialRendererServices *services, s32 userData) {
 	IVideoDriver *driver = services->getVideoDriver();
 
-	matrix4 invWorld = driver->getTransform(video::ETS_WORLD);
-	invWorld.makeInverse();
-
 	matrix4 worldViewProj;
 	worldViewProj = driver->getTransform(video::ETS_PROJECTION);
 	worldViewProj *= driver->getTransform(video::ETS_VIEW);
 	worldViewProj *= driver->getTransform(video::ETS_WORLD);
 
-	vector3df pos = vector3df(-500.0f, 500.0f, -500.0f);
-	video::SColorf col(1.0f, 1.0f, 1.0f, 0.0f);
+	vector3df lightPos = vector3df(-10000.0f, 0.0f, -1000.0f);
+	SColorf col(1.0f, 1.0f, 1.0f, 0.0f);
+	SColorf ambient(0.008f, 0.008f, 0.008f, 0.0f);
 
 	matrix4 world = driver->getTransform(video::ETS_WORLD);
-	world = world.getTransposed();
 	
-	services->setVertexShaderConstant("mInvWorld", invWorld.pointer(), 16);
 	services->setVertexShaderConstant("mWorldViewProj", worldViewProj.pointer(), 16);
-	services->setVertexShaderConstant("mLightPos", reinterpret_cast<f32*>(&pos), 3);
-	services->setVertexShaderConstant("mLightColor", reinterpret_cast<f32*>(&col), 4);
-	services->setVertexShaderConstant("mTransWorld", world.pointer(), 16);
+	services->setVertexShaderConstant("mWorld", world.pointer(), 16);
+	services->setPixelShaderConstant("mWorld", world.pointer(), 16);
+	services->setPixelShaderConstant("mAmbient", reinterpret_cast<f32*>(&ambient), 4);
+	services->setPixelShaderConstant("mLightPos", reinterpret_cast<f32*>(&lightPos), 3);
+	services->setPixelShaderConstant("mLightColour", reinterpret_cast<f32*>(&col), 4);
 }

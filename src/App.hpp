@@ -65,8 +65,9 @@ class App  {
 		irr::gui::IGUIEnvironment *mGui;
 		irr::scene::ISceneManager *mScene;
 		irr::scene::ICameraSceneNode *mCamera;
+		irr::scene::ILightSceneNode *mLight;
 
-		irr::s32 dt;
+		irr::f32 dt;
 		irr::core::stringw mTitle;
 
 		EventReciever *mEventReciever;

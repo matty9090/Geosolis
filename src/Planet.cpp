@@ -15,15 +15,16 @@ Planet::~Planet() {
 	delete mTerrain;
 }
 
-void Planet::update(s32 dt) {
+void Planet::update(f32 dt) {
 	vector3df force;
 
 	for (auto &body : mInfluences)
 		force += gravity(body);
 
-	mVelocity += dt * (force / mMass) / WORLD_SCALE;
-	mPosition += mVelocity * dt / WORLD_SCALE;
+	mVelocity += 1000.0f * dt * (force / mMass);
+	mPosition += 1000.0f * mVelocity * dt;
 
+	mTerrain->rotate(vector3df(0.0f, 10.0f * dt, 0.0f));
 	mTerrain->setPosition(mPosition);
 	mTerrain->update();
 }

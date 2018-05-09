@@ -11,7 +11,7 @@ class Planet {
 		Planet(irr::IrrlichtDevice *device, irr::f64 mass, irr::f64 radius);
 		~Planet();
 
-		void update(irr::s32 dt);
+		void update(irr::f32 dt);
 		void addInflucence(Planet *p) { mInfluences.push_back(p); }
 		void setPosition(irr::core::vector3df pos);
 		void setVelocity(irr::core::vector3df vel);

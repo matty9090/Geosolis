@@ -15,8 +15,10 @@ class Terrain {
 		
 		enum EFace { Top, Bottom, Right, Left, Front, Back };
 
+		void							 rotate(irr::core::vector3df rot);
 		void							 setPosition(irr::core::vector3df pos);
 		irr::core::vector3df			 getPosition()						const { return mPosition; }
+		irr::core::vector3df			 getRotation()						const { return mRotation; }
 		void							 update();
 		irr::f32						 getRadius()						const { return mRadius; }
 		irr::f32						 getHeight(float x, float y)		const;
@@ -30,7 +32,7 @@ class Terrain {
 	private:
 		irr::f32 mRadius;
 		irr::s32 mMaterialType;
-		irr::core::vector3df mPosition;
+		irr::core::vector3df mPosition, mRotation;
 		irr::core::rectf mBounds;
 		std::array<TerrainNode*, 6> mFaces;
 		utils::NoiseMap mHeightmap;
@@ -48,9 +50,7 @@ class TerrainShader : public irr::video::IShaderConstantSetCallBack {
 		TerrainShader(Terrain *terrain) : mTerrain(terrain) {}
 
 		virtual void OnSetConstants(irr::video::IMaterialRendererServices* services, irr::s32 userData);
-		virtual void OnSetMaterial(const irr::video::SMaterial &material) { mMaterial = &material; }
 
 	private:
 		Terrain *mTerrain;
-		const irr::video::SMaterial *mMaterial;
 };

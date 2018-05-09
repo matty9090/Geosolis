@@ -29,7 +29,7 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(false) {
 	mCamera->setPosition(vector3df(0.0f, 0.0f, -500.0f));
 	mCamera->setRotation(vector3df(0.0f, 0.0f, 0.0f));
 
-	mScene->addLightSceneNode(nullptr, vector3df(-2500.0f, 2500.0f, -2500.0f), SColor(255, 255, 255, 255), 10000);
+	//mLight = mScene->addLightSceneNode(nullptr, vector3df(-500.0f, 0.0f, -500.0f), SColor(255, 255, 255, 255), 10000.0f);
 
 	TerrainNode::Wireframe = mWireframe;
 	
@@ -68,6 +68,8 @@ int App::run() {
 	int fps = 0;
 	int lfps = 0;
 
+	u32 last_dt = mDevice->getTimer()->getTime(), now;
+
 	while (mDevice->run()) {
 		handleEvents();
 
@@ -80,8 +82,10 @@ int App::run() {
 		mGui->drawAll();
 		mDriver->endScene();
 
-		dt  = mDevice->getTimer()->getTime();
+		now = mDevice->getTimer()->getTime();
+		dt  = (f32)(now - last_dt) / 1000.0f;
 		fps = mDriver->getFPS();
+		last_dt = now;
 
 		if (fps != lfps) {
 			stringw tmp = mTitle + " [";
@@ -116,6 +120,8 @@ void App::handleEvents() {
 }
 
 void App::update() {
+	//mLight->setPosition(mCamera->getAbsolutePosition());
+
 	float speed	= log((mCamera->getPosition().getDistanceFrom(vector3df()) + 4.0f) / (mActivePlanet->getTerrain()->getRadius())) / 5.0f;
 	ISceneNodeAnimatorCameraFPS *anim = (ISceneNodeAnimatorCameraFPS*)*mCamera->getAnimators().begin();
 	anim->setMoveSpeed(speed);

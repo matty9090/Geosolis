@@ -44,8 +44,14 @@ void TerrainNode::setFaceNeighbours(TerrainNode *north, TerrainNode *east, Terra
 }
 
 void TerrainNode::update() {
+	vector3df centre = mCentre;
+	matrix4 rot;
+	rot.setRotationDegrees(mTerrain->getRotation());
+	rot.rotateVect(centre);
+	centre += mTerrain->getPosition();
+
 	float height = (mTerrain->getCamera()->getPosition() - mTerrain->getPosition()).getLength() - (mTerrain->getRadius() * (1 - 0.01f));
-	float dist = mTerrain->getCamera()->getPosition().getDistanceFrom(mCentre + mTerrain->getPosition()) - mDiameter;
+	float dist = mTerrain->getCamera()->getPosition().getDistanceFrom(centre) - mDiameter;
 
 	float horizon = sqrtf(height * (2 * mTerrain->getRadius() + height));
 
@@ -56,7 +62,7 @@ void TerrainNode::update() {
 	if (!mVisible)
 		return;
 
-	float distance	= mTerrain->getCamera()->getPosition().getDistanceFrom(mCentre + mTerrain->getPosition()) / mTerrain->getRadius();
+	float distance	= mTerrain->getCamera()->getPosition().getDistanceFrom(centre) / mTerrain->getRadius();
 	bool divide		= distance < getScale() * 3.0f;
 
 #ifdef _DEBUG
@@ -139,12 +145,12 @@ void TerrainNode::cleanup() {
 }
 
 void TerrainNode::notifyNeighbours() {
-	auto neighbours = getSENeighbours();
+	/*auto neighbours = getSENeighbours();
 
 	for (auto &node : neighbours[North]) if (node) node->rebuildEdge(South);
 	for (auto &node : neighbours[East ]) if (node) node->rebuildEdge(West );
 	for (auto &node : neighbours[South]) if (node) node->rebuildEdge(North);
-	for (auto &node : neighbours[West ]) if (node) node->rebuildEdge(East );
+	for (auto &node : neighbours[West ]) if (node) node->rebuildEdge(East );*/
 }
 
 void TerrainNode::removeMarkers() {
@@ -352,8 +358,10 @@ void TerrainNode::createMesh() {
 	mSceneNode->setMaterialFlag(EMF_LIGHTING, false);
 	mSceneNode->setMaterialType((E_MATERIAL_TYPE)mTerrain->getMaterialType());
 
-	if (!mParent)
+	if (!mParent) {
 		mSceneNode->setPosition(mTerrain->getPosition());
+		mSceneNode->setRotation(mTerrain->getRotation());
+	}
 
 	mNumVertices = GRID_SIZE * GRID_SIZE;
 	mNumIndices	 = 6 * (GRID_SIZE - 1) * (GRID_SIZE - 1);
@@ -402,7 +410,7 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 
 			vector3df sphere = mTerrain->project(vector3df(xx, 0.5f, yy)).normalize();
 			rot.rotateVect(sphere);
-
+			
 			vector3df normal = sphere;
 
 			f32 tu = 0.5f + (atan2(sphere.Z, sphere.X) / (2.0f * PI));
