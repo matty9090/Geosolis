@@ -2,6 +2,7 @@
 
 using namespace irr;
 using namespace core;
+using namespace video;
 
 Planet::Planet(irr::IrrlichtDevice *device, irr::f64 mass, irr::f64 radius)
 	: mDevice(device),
@@ -10,7 +11,15 @@ Planet::Planet(irr::IrrlichtDevice *device, irr::f64 mass, irr::f64 radius)
 {
 	mSceneNode = device->getSceneManager()->addEmptySceneNode();
 	mTerrain = new Terrain(device, mSceneNode, (irr::f32)(mRadius / WORLD_SCALE));
-	//mAtmosphere = device->getSceneManager()->addSphereSceneNode(;
+	mAtmosphere = device->getSceneManager()->addSphereSceneNode((irr::f32)(mRadius / WORLD_SCALE) * 1.08f, 32, mSceneNode);
+
+	IGPUProgrammingServices *gpu = device->getVideoDriver()->getGPUProgrammingServices();
+	AtmosphereShader *atmosphereShader = new AtmosphereShader();
+
+	s32 material = gpu->addHighLevelShaderMaterialFromFiles("shaders/AtmosphereVS.fx", "main", EVST_VS_3_0, "shaders/AtmospherePS.fx", "main", EPST_PS_3_0, atmosphereShader, EMT_TRANSPARENT_ALPHA_CHANNEL);
+	atmosphereShader->drop();
+
+	mAtmosphere->setMaterialType((E_MATERIAL_TYPE)material);
 }
 
 Planet::~Planet() {
@@ -67,4 +76,26 @@ irr::core::vector3d<f64> Planet::gravity(Planet *p) {
 	double force = (G * mMass * p->getMass()) / (r * r);
 
 	return vector3d<f64>(force * dx / r, force * dy / r, force * dz / r);
+}
+
+void AtmosphereShader::OnSetConstants(IMaterialRendererServices *services, s32 userData) {
+	IVideoDriver *driver = services->getVideoDriver();
+
+	matrix4 worldViewProj;
+	worldViewProj = driver->getTransform(video::ETS_PROJECTION);
+	worldViewProj *= driver->getTransform(video::ETS_VIEW);
+	worldViewProj *= driver->getTransform(video::ETS_WORLD);
+
+	vector3df lightPos = vector3df(-10000.0f, 0.0f, -1000.0f);
+	SColorf col(1.0f, 1.0f, 1.0f, 0.0f);
+	SColorf ambient(0.008f, 0.008f, 0.008f, 0.0f);
+
+	matrix4 world = driver->getTransform(video::ETS_WORLD);
+
+	services->setVertexShaderConstant("mWorldViewProj", worldViewProj.pointer(), 16);
+	services->setVertexShaderConstant("mWorld", world.pointer(), 16);
+	/*services->setPixelShaderConstant("mWorld", world.pointer(), 16);
+	services->setPixelShaderConstant("mAmbient", reinterpret_cast<f32*>(&ambient), 4);
+	services->setPixelShaderConstant("mLightPos", reinterpret_cast<f32*>(&lightPos), 3);
+	services->setPixelShaderConstant("mLightColour", reinterpret_cast<f32*>(&col), 4);*/
 }

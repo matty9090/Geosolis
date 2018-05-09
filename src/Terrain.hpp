@@ -48,10 +48,5 @@ class Terrain {
 
 class TerrainShader : public irr::video::IShaderConstantSetCallBack {
 	public:
-		TerrainShader(Terrain *terrain) : mTerrain(terrain) {}
-
-		virtual void OnSetConstants(irr::video::IMaterialRendererServices* services, irr::s32 userData);
-
-	private:
-		Terrain *mTerrain;
+		virtual void OnSetConstants(irr::video::IMaterialRendererServices *services, irr::s32 userData);
 };

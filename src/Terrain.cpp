@@ -19,9 +19,9 @@ Terrain::Terrain(irr::IrrlichtDevice *device, irr::scene::ISceneNode *node, irr:
 	mGPU = mDriver->getGPUProgrammingServices();
 	mDriver->setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, false);
 
-	TerrainShader *terrainShader = new TerrainShader(this);
+	TerrainShader *terrainShader = new TerrainShader();
 
-	mMaterialType = mGPU->addHighLevelShaderMaterialFromFiles("shaders/VertexShader.fx", "main", EVST_VS_3_0, "shaders/PixelShader.fx", "main", EPST_PS_3_0, terrainShader, EMT_SOLID);
+	mMaterialType = mGPU->addHighLevelShaderMaterialFromFiles("shaders/PlanetVS.fx", "main", EVST_VS_3_0, "shaders/PlanetPS.fx", "main", EPST_PS_3_0, terrainShader, EMT_SOLID);
 	terrainShader->drop();
 
 	for (auto &face : mFaces)

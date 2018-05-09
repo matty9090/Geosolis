@@ -39,9 +39,14 @@ class Planet {
 		Terrain *mTerrain;
 
 		irr::scene::ISceneNode *mSceneNode;
-		irr::scene::ISceneNode *mAtmosphere;
+		irr::scene::IMeshSceneNode *mAtmosphere;
 		irr::IrrlichtDevice *mDevice;
 		std::vector<Planet*> mInfluences;
 
 		irr::core::vector3d<irr::f64> gravity(Planet *p);
+};
+
+class AtmosphereShader : public irr::video::IShaderConstantSetCallBack {
+	public:
+		virtual void OnSetConstants(irr::video::IMaterialRendererServices *services, irr::s32 userData);
 };

@@ -55,7 +55,9 @@
     <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shaders\VertexShader.fx" />
-    <FxCompile Include="shaders\PixelShader.fx" />
+    <FxCompile Include="shaders\AtmospherePS.fx" />
+    <FxCompile Include="shaders\AtmosphereVS.fx" />
+    <FxCompile Include="shaders\PlanetPS.fx" />
+    <FxCompile Include="shaders\PlanetVS.fx" />
   </ItemGroup>
 </Project>
