@@ -58,7 +58,7 @@ class App  {
 		int run();
 
 	private:
-		bool mWireframe;
+		bool mWireframe, mPaused;
 		
 		irr::IrrlichtDevice *mDevice;
 		irr::video::IVideoDriver *mDriver;
@@ -80,6 +80,7 @@ class App  {
 		void update();
 		void updateGUI();
 
+		Planet *getClosestBody();
 		std::wstring toMultiByte(std::string str);
 
 		template <class T> std::string vecToString(irr::core::vector3d<T> v);

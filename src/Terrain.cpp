@@ -76,6 +76,10 @@ float Terrain::getHeight(float x, float y) const {
 	return h;
 }
 
+irr::scene::ISceneNode * Terrain::getSceneNode() const {
+	return mFaces[0]->getSceneNode();
+}
+
 vector3df Terrain::project(vector3df p) const {
 	float x2 = p.X * p.X, y2 = p.Y * p.Y, z2 = p.Z * p.Z;
 

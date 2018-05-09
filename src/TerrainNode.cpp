@@ -44,14 +44,14 @@ void TerrainNode::setFaceNeighbours(TerrainNode *north, TerrainNode *east, Terra
 }
 
 void TerrainNode::update() {
-	vector3df centre = mCentre;
+	vector3df centre = mCentre, camPos = mTerrain->getCamera()->getAbsolutePosition();
 	matrix4 rot;
 	rot.setRotationDegrees(mTerrain->getRotation());
 	rot.rotateVect(centre);
 	centre += mTerrain->getPosition();
 
-	float height = (mTerrain->getCamera()->getPosition() - mTerrain->getPosition()).getLength() - (mTerrain->getRadius() * (1 - 0.01f));
-	float dist = mTerrain->getCamera()->getPosition().getDistanceFrom(centre) - mDiameter;
+	float height = (camPos - mTerrain->getPosition()).getLength() - (mTerrain->getRadius() * (1 - 0.01f));
+	float dist = camPos.getDistanceFrom(centre) - mDiameter;
 
 	float horizon = sqrtf(height * (2 * mTerrain->getRadius() + height));
 
@@ -62,7 +62,7 @@ void TerrainNode::update() {
 	if (!mVisible)
 		return;
 
-	float distance	= mTerrain->getCamera()->getPosition().getDistanceFrom(centre) / mTerrain->getRadius();
+	float distance	= camPos.getDistanceFrom(centre) / mTerrain->getRadius();
 	bool divide		= distance < getScale() * 3.0f;
 
 #ifdef _DEBUG

@@ -11,7 +11,7 @@ using namespace video;
 using namespace io;
 using namespace gui;
 
-App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(false), mSimSpeed(1.0f) {
+App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(false), mSimSpeed(1.0f), mPaused(false) {
 	mEventReciever = new EventReciever();
 	mDevice = createDevice(EDT_DIRECT3D9, dimension2d<u32>(1280, 960), 32, false, false, false, mEventReciever);
 
@@ -83,7 +83,7 @@ int App::run() {
 		mDriver->endScene();
 
 		now = mDevice->getTimer()->getTime();
-		dt  = mSimSpeed * (f32)(now - last_dt) / 1000.0f;
+		dt  = mPaused ? 0.0f : mSimSpeed * (f32)(now - last_dt) / 1000.0f;
 		fps = mDriver->getFPS();
 		last_dt = now;
 
@@ -114,6 +114,9 @@ void App::handleEvents() {
 
 	if (mEventReciever->KeyHit(KEY_PLUS)) mSimSpeed *= 10.0f;
 	if (mEventReciever->KeyHit(KEY_MINUS)) mSimSpeed /= 10.0f;
+
+	if (mEventReciever->KeyHit(KEY_PAUSE))
+		mPaused = !mPaused;
 
 	if (mEventReciever->KeyHit(KEY_KEY_Q)) {
 		bool enabled = mCamera->isInputReceiverEnabled();
@@ -153,6 +156,23 @@ template <class T> std::string App::toString(T v, size_t precision) {
 	ss << v;
 
 	return ss.str();
+}
+
+Planet *App::getClosestBody() {
+	f64 dist = -1;
+	vector3df camPos = mCamera->getAbsolutePosition();
+	vector3d<f64> p(camPos.X, camPos.Y, camPos.Z);
+
+	Planet *planet = nullptr;
+	
+	for (auto &body : mPlanets) {
+		f64 d = body->getPosition().getDistanceFromSQ(p);
+
+		if (dist < 0 || d < dist)
+			dist = d, planet = body;
+	}
+
+	return planet;
 }
 
 std::wstring App::toMultiByte(std::string str) {

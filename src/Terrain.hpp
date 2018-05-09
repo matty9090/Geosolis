@@ -24,6 +24,7 @@ class Terrain {
 		irr::f32						 getHeight(float x, float y)		const;
 		void							 setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value) const;
 		irr::s32						 getMaterialType()					const { return mMaterialType; }
+		irr::scene::ISceneNode			*getSceneNode()						const;
 		irr::core::vector3df			 project(irr::core::vector3df p)	const;
 		irr::scene::ISceneManager		*getSceneManager()					const { return mScene; }
 		irr::video::IVideoDriver		*getVideoDriver()					const { return mDriver; }
