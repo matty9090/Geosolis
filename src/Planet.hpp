@@ -16,22 +16,22 @@ class Planet {
 		void setPosition(irr::core::vector3df pos);
 		void setVelocity(irr::core::vector3df vel);
 
-		Terrain					*getTerrain()	const { return mTerrain;	}
-		irr::f64				 getMass()		const { return mMass;		}
-		irr::f64				 getRadius()	const { return mRadius;		}
-		irr::core::vector3df	 getPosition()	const { return mPosition;	}
+		Terrain							*getTerrain()	const { return mTerrain;	}
+		irr::f64						 getMass()		const { return mMass;		}
+		irr::f64						 getRadius()	const { return mRadius;		}
+		irr::core::vector3d<irr::f64>	 getPosition()	const { return mPosition;	}
 
 	private:
 		irr::f64 mMass;
 		irr::f64 mRadius;
 
-		irr::core::vector3df mVelocity;
-		irr::core::vector3df mPosition;
+		irr::core::vector3d<irr::f64> mVelocity;
+		irr::core::vector3d<irr::f64> mPosition;
 
 		Terrain *mTerrain;
 
 		irr::IrrlichtDevice *mDevice;
 		std::vector<Planet*> mInfluences;
 
-		irr::core::vector3df gravity(Planet *p);
+		irr::core::vector3d<irr::f64> gravity(Planet *p);
 };

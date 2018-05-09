@@ -16,35 +16,35 @@ Planet::~Planet() {
 }
 
 void Planet::update(f32 dt) {
-	vector3df force;
+	vector3d<f64> force;
 
 	for (auto &body : mInfluences)
 		force += gravity(body);
 
-	mVelocity += 1000.0f * dt * (force / mMass);
-	mPosition += 1000.0f * mVelocity * dt;
+	mVelocity += dt * (force / mMass);
+	mPosition += mVelocity * dt;
 
-	mTerrain->rotate(vector3df(0.0f, 10.0f * dt, 0.0f));
-	mTerrain->setPosition(mPosition);
+	mTerrain->rotate(vector3df(0.0f, dt, 0.0f));
+	mTerrain->setPosition(vector3df((f32)mPosition.X, (f32)mPosition.Y, (f32)mPosition.Z));
 	mTerrain->update();
 }
 
 void Planet::setPosition(irr::core::vector3df pos) {
-	mPosition = pos;
+	mPosition = vector3d<f64>(pos.X, pos.Y, pos.Z);
 	mTerrain->setPosition(pos);
 }
 
 void Planet::setVelocity(irr::core::vector3df vel) {
-	mVelocity = vel;
+	mVelocity = vector3d<f64>(vel.X, vel.Y, vel.Z);
 }
 
-irr::core::vector3df Planet::gravity(Planet *p) {
-	float dx = p->getPosition().X - mPosition.X;
-	float dy = p->getPosition().Y - mPosition.Y;
-	float dz = p->getPosition().Z - mPosition.Z;
+irr::core::vector3d<f64> Planet::gravity(Planet *p) {
+	double dx = p->getPosition().X - mPosition.X;
+	double dy = p->getPosition().Y - mPosition.Y;
+	double dz = p->getPosition().Z - mPosition.Z;
 
-	float r = sqrt((dx * dx) + (dy * dy) + (dz * dz)) * WORLD_SCALE;
-	float force = (G * mMass * p->getMass()) / (r * r);
+	double r = sqrt((dx * dx) + (dy * dy) + (dz * dz)) * WORLD_SCALE;
+	double force = (G * mMass * p->getMass()) / (r * r);
 
-	return vector3df(force * dx / r, force * dy / r, force * dz / r);
+	return vector3d<f64>(force * dx / r, force * dy / r, force * dz / r);
 }

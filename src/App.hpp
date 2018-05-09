@@ -67,7 +67,7 @@ class App  {
 		irr::scene::ICameraSceneNode *mCamera;
 		irr::scene::ILightSceneNode *mLight;
 
-		irr::f32 dt;
+		irr::f32 dt, mSimSpeed;
 		irr::core::stringw mTitle;
 
 		EventReciever *mEventReciever;

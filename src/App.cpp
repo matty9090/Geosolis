@@ -11,7 +11,7 @@ using namespace video;
 using namespace io;
 using namespace gui;
 
-App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(false) {
+App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(false), mSimSpeed(1.0f) {
 	mEventReciever = new EventReciever();
 	mDevice = createDevice(EDT_DIRECT3D9, dimension2d<u32>(1280, 960), 32, false, false, false, mEventReciever);
 
@@ -83,7 +83,7 @@ int App::run() {
 		mDriver->endScene();
 
 		now = mDevice->getTimer()->getTime();
-		dt  = (f32)(now - last_dt) / 1000.0f;
+		dt  = mSimSpeed * (f32)(now - last_dt) / 1000.0f;
 		fps = mDriver->getFPS();
 		last_dt = now;
 
@@ -111,6 +111,9 @@ void App::handleEvents() {
 		mWireframe = !mWireframe;
 		TerrainNode::Wireframe = mWireframe;
 	}
+
+	if (mEventReciever->KeyHit(KEY_PLUS)) mSimSpeed *= 10.0f;
+	if (mEventReciever->KeyHit(KEY_MINUS)) mSimSpeed /= 10.0f;
 
 	if (mEventReciever->KeyHit(KEY_KEY_Q)) {
 		bool enabled = mCamera->isInputReceiverEnabled();
