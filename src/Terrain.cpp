@@ -8,7 +8,7 @@ using namespace irr::core;
 using namespace irr::scene;
 using namespace irr::video;
 
-Terrain::Terrain(irr::IrrlichtDevice *device, irr::f32 radius)
+Terrain::Terrain(irr::IrrlichtDevice *device, irr::scene::ISceneNode *node, irr::f32 radius)
 	: mScene(device->getSceneManager()),
 	mDriver(device->getVideoDriver()),
 	mBounds(-0.5f, -0.5f, 0.5f, 0.5f),
@@ -25,7 +25,7 @@ Terrain::Terrain(irr::IrrlichtDevice *device, irr::f32 radius)
 	terrainShader->drop();
 
 	for (auto &face : mFaces)
-		face = new TerrainNode(nullptr, this, mBounds);
+		face = new TerrainNode(nullptr, this, mBounds, node);
 
 	mFaces[Top   ]->setRotation(vector3df(   0.0f, 0.0f,   0.0f));
 	mFaces[Bottom]->setRotation(vector3df( 180.0f, 0.0f,   0.0f));
@@ -52,18 +52,12 @@ Terrain::~Terrain() {
 	}
 }
 
-void Terrain::rotate(vector3df rot) {
-	mRotation += rot;
-
-	for (auto &face : mFaces)
-		face->getSceneNode()->setRotation(mRotation);
+void Terrain::setRotation(vector3df rot) {
+	mRotation = rot;
 }
 
 void Terrain::setPosition(vector3df pos) {
 	mPosition = pos;
-
-	for (auto &face : mFaces)
-		face->getSceneNode()->setPosition(pos);
 }
 
 void Terrain::update() {
@@ -76,7 +70,7 @@ float Terrain::getHeight(float x, float y) const {
 	return h;
 }
 
-irr::scene::ISceneNode * Terrain::getSceneNode() const {
+irr::scene::ISceneNode *Terrain::getSceneNode() const {
 	return mFaces[0]->getSceneNode();
 }
 

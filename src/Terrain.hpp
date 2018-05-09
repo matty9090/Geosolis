@@ -10,12 +10,12 @@ class TerrainNode;
 
 class Terrain {
 	public:
-		Terrain(irr::IrrlichtDevice *device, irr::f32 radius);
+		Terrain(irr::IrrlichtDevice *device, irr::scene::ISceneNode *node, irr::f32 radius);
 		~Terrain();
 		
 		enum EFace { Top, Bottom, Right, Left, Front, Back };
 
-		void							 rotate(irr::core::vector3df rot);
+		void							 setRotation(irr::core::vector3df rot);
 		void							 setPosition(irr::core::vector3df pos);
 		irr::core::vector3df			 getPosition()						const { return mPosition; }
 		irr::core::vector3df			 getRotation()						const { return mRotation; }

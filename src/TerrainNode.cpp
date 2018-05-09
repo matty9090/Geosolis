@@ -13,10 +13,11 @@ u64  TerrainNode::Triangles	= 0U;
 bool TerrainNode::Normals	= false;
 bool TerrainNode::Wireframe	= false;
 
-TerrainNode::TerrainNode(TerrainNode *parent, Terrain *terrain, irr::core::rectf bounds)
+TerrainNode::TerrainNode(TerrainNode *parent, Terrain *terrain, irr::core::rectf bounds, irr::scene::ISceneNode *parentNode)
   : mParent(parent),
 	mTerrain(terrain),
 	mBounds(bounds),
+	mParentSceneNode(parentNode),
 	mDepth(parent ? parent->getDepth() + 1 : 1)
 {
 	
@@ -343,13 +344,13 @@ void TerrainNode::cleanData() {
 }
 
 void TerrainNode::createMesh() {
-	mMesh = new irr::scene::SMesh();
-
+	mMesh	= new irr::scene::SMesh();
 	mBuffer = new SMeshBuffer();
+
 	mMesh->addMeshBuffer(mBuffer);
 	mBuffer->drop();
 
-	ISceneNode *parent = (mParent) ? mParent->getSceneNode() : nullptr;
+	ISceneNode *parent = (mParent) ? mParent->getSceneNode() : mParentSceneNode;
 	mSceneNode = mTerrain->getSceneManager()->addMeshSceneNode(mMesh, parent);
 	mSceneNode->setMaterialFlag(EMF_BACK_FACE_CULLING, false);
 	mSceneNode->setAutomaticCulling(EAC_OFF);
@@ -358,10 +359,10 @@ void TerrainNode::createMesh() {
 	mSceneNode->setMaterialFlag(EMF_LIGHTING, false);
 	mSceneNode->setMaterialType((E_MATERIAL_TYPE)mTerrain->getMaterialType());
 
-	if (!mParent) {
+	/*if (!mParent) {
 		mSceneNode->setPosition(mTerrain->getPosition());
 		mSceneNode->setRotation(mTerrain->getRotation());
-	}
+	}*/
 
 	mNumVertices = GRID_SIZE * GRID_SIZE;
 	mNumIndices	 = 6 * (GRID_SIZE - 1) * (GRID_SIZE - 1);

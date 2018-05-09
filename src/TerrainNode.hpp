@@ -6,7 +6,7 @@ class Terrain;
 
 class TerrainNode {
 	public:
-		TerrainNode(TerrainNode *parent, Terrain *terrain, irr::core::rectf bounds);
+		TerrainNode(TerrainNode *parent, Terrain *terrain, irr::core::rectf bounds, irr::scene::ISceneNode *node = nullptr);
 		~TerrainNode();
 
 		enum EDir  { North, East, South, West };
@@ -68,6 +68,7 @@ class TerrainNode {
 
 		Terrain *mTerrain;
 		TerrainNode *mParent;
+		irr::scene::ISceneNode *mParentSceneNode;
 
 		void cleanData();
 		void createMesh();
