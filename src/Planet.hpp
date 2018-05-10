@@ -22,15 +22,18 @@ class Planet {
 		void setRotation(irr::core::vector3df rot);
 
 		Terrain							*getTerrain()	const { return mTerrain;	}
+		irr::f32						 getCamHeight()	const;
 		irr::f64						 getMass()		const { return mMass;		}
 		irr::f64						 getRadius()	const { return mRadius;		}
-		irr::core::vector3d<irr::f64>	 getVelocity()	const { return mVelocity; }
+		irr::f64						 getAtmRadius()	const { return mAtmRadius;	}
+		irr::core::vector3d<irr::f64>	 getVelocity()	const { return mVelocity;	}
 		irr::core::vector3d<irr::f64>	 getPosition()	const { return mPosition;	}
-		irr::core::vector3d<irr::f64>	 getRotation()	const { return mRotation;	}
+		irr::core::vector3df			 getLightDir()	const;
+		irr::core::vector3df			 getLocalCam()	const;
 
 	private:
 		irr::f64 mMass;
-		irr::f64 mRadius;
+		irr::f64 mRadius, mAtmRadius;
 
 		irr::core::vector3d<irr::f64> mVelocity;
 		irr::core::vector3d<irr::f64> mPosition;
@@ -48,5 +51,10 @@ class Planet {
 
 class AtmosphereShader : public irr::video::IShaderConstantSetCallBack {
 	public:
+		AtmosphereShader(Planet *p) : mPlanet(p) {}
+
 		virtual void OnSetConstants(irr::video::IMaterialRendererServices *services, irr::s32 userData);
+
+	private:
+		Planet *mPlanet;
 };

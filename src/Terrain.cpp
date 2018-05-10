@@ -140,7 +140,7 @@ void TerrainShader::OnSetConstants(IMaterialRendererServices *services, s32 user
 	worldViewProj *= driver->getTransform(video::ETS_VIEW);
 	worldViewProj *= driver->getTransform(video::ETS_WORLD);
 
-	vector3df lightPos = vector3df(-10000.0f, 0.0f, -1000.0f);
+	vector3df lightPos = vector3df(-10000.0f, 0.0f, -10000.0f);
 	SColorf col(1.0f, 1.0f, 1.0f, 0.0f);
 	SColorf ambient(0.008f, 0.008f, 0.008f, 0.0f);
 

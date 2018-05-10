@@ -25,7 +25,7 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(false), 
 	mGui    = mDevice->getGUIEnvironment();
 
 	mCamera = mScene->addCameraSceneNodeFPS(nullptr, 80.0f, 0.04f);
-	mCamera->setNearValue(0.01f);
+	mCamera->setNearValue(0.1f);
 	mCamera->setPosition(vector3df(0.0f, 0.0f, -500.0f));
 	mCamera->setRotation(vector3df(0.0f, 0.0f, 0.0f));
 
