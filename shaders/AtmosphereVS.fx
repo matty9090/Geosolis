@@ -37,7 +37,6 @@ VS_OUTPUT main(VS_INPUT v_in) {
 	float atmosphereHeight = atmosphereRadius - planetRadius;
 	float alpha = rayLength / atmosphereRadius;
 
-	//alpha *= alpha;
 	alpha = 0.0f;
 
 	float stepSize = rayLength / float(5);
@@ -57,7 +56,7 @@ VS_OUTPUT main(VS_INPUT v_in) {
 
 	Output.Position = mul(float4(rayEnd, 1.0), mWorldViewProj);
 	//Output.Position = mul(v_in.vPosition, mWorldViewProj);
-	Output.Colour	= float3(0.1f, 0.6f, 1.0f);
+	Output.Colour	= float3(0.0f, 0.44f, 1.0f);
 	Output.Alpha	= alpha;
 
 	return Output;

@@ -8,7 +8,7 @@ Planet::Planet(irr::IrrlichtDevice *device, irr::f64 mass, irr::f64 radius)
 	: mDevice(device),
 	mMass(mass),
 	mRadius(radius),
-	mAtmRadius(radius * 1.1f)
+	mAtmRadius(radius * 1.06f)
 {
 	mSceneNode = device->getSceneManager()->addEmptySceneNode();
 	mTerrain = new Terrain(device, mSceneNode, (irr::f32)(mRadius / WORLD_SCALE));
