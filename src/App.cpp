@@ -29,6 +29,9 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(false), 
 	mCamera->setPosition(vector3df(0.0f, 0.0f, -500.0f));
 	mCamera->setRotation(vector3df(0.0f, 0.0f, 0.0f));
 
+	ITexture *stars = mDriver->getTexture("tex/Stars.png");
+	mScene->addSkyBoxSceneNode(stars, stars, stars, stars, stars, stars);
+
 	//mLight = mScene->addLightSceneNode(nullptr, vector3df(-500.0f, 0.0f, -500.0f), SColor(255, 255, 255, 255), 10000.0f);
 
 	TerrainNode::Wireframe = mWireframe;
