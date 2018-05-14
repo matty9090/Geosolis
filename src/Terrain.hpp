@@ -21,7 +21,7 @@ class Terrain {
 		irr::core::vector3df			 getRotation()						const { return mRotation; }
 		void							 update();
 		irr::f32						 getRadius()						const { return mRadius; }
-		irr::f32						 getHeight(float x, float y)		const;
+		irr::f32						 getHeight(float x, float y, float z)		const;
 		void							 setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value) const;
 		irr::s32						 getMaterialType()					const { return mMaterialType; }
 		irr::scene::ISceneNode			*getSceneNode()						const;

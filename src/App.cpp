@@ -14,7 +14,7 @@ using namespace gui;
 App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(false), mSimSpeed(1.0f), mPaused(false) {
 	mEventReciever = new EventReciever();
 	mDevice = createDevice(EDT_DIRECT3D9, dimension2d<u32>(1280, 960), 32, false, false, false, mEventReciever);
-
+	
 	if (!mDevice)
 		exit(1);
 
@@ -26,6 +26,7 @@ App::App(std::wstring title) : dt(0), mTitle(title.c_str()), mWireframe(false), 
 
 	mCamera = mScene->addCameraSceneNodeFPS(nullptr, 80.0f, 0.04f);
 	mCamera->setNearValue(0.1f);
+	mCamera->setFarValue(10000.0f);
 	mCamera->setPosition(vector3df(0.0f, 0.0f, -500.0f));
 	mCamera->setRotation(vector3df(0.0f, 0.0f, 0.0f));
 
@@ -131,7 +132,7 @@ void App::handleEvents() {
 void App::update() {
 	//mLight->setPosition(mCamera->getAbsolutePosition());
 
-	float speed	= log((mCamera->getPosition().getDistanceFrom(vector3df()) + 4.0f) / (mActivePlanet->getTerrain()->getRadius())) / 5.0f;
+	float speed	= log((mCamera->getPosition().getDistanceFrom(vector3df()) + 2.0f) / (mActivePlanet->getTerrain()->getRadius())) / 5.0f;
 	ISceneNodeAnimatorCameraFPS *anim = (ISceneNodeAnimatorCameraFPS*)*mCamera->getAnimators().begin();
 	anim->setMoveSpeed(speed);
 

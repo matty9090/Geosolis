@@ -21,7 +21,6 @@ class TerrainNode {
 		void rebuildEdge(int dir);
 		void cleanup();
 		void notifyNeighbours();
-		void removeMarkers();
 
 		void setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value);
 		void setRotation(irr::core::vector3df rotation) { mRotation = rotation; }
@@ -75,6 +74,6 @@ class TerrainNode {
 		void createPlane(irr::scene::SMeshBuffer *buf);
 
 		inline irr::core::vector3df calculateNormal(irr::f32 x, irr::f32 y, irr::f32 stepX, irr::f32 stepY);
-		inline void fixDetailV(int x, float yy, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir);
-		inline void fixDetailH(int y, float xx, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir);
+		inline void fixDetailV(irr::video::S3DVertex &v, int x, float yy, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir, irr::core::matrix4 &rot);
+		inline void fixDetailH(irr::video::S3DVertex &v, int y, float xx, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir, irr::core::matrix4 &rot);
 };

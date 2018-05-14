@@ -73,7 +73,7 @@ void TerrainNode::update() {
 	if (!divide)
 		merge();
 
-	if (isLeaf() && divide && mDepth < 10) {
+	if (isLeaf() && divide && mDepth < 14) {
 		split();
 	} else if (!isLeaf()) {
 		for (auto child : mChildren)
@@ -119,7 +119,6 @@ void TerrainNode::merge() {
 			child = nullptr;
 		}
 
-		removeMarkers();
 		notifyNeighbours();
 
 		createMesh();
@@ -129,6 +128,9 @@ void TerrainNode::merge() {
 	}
 }
 
+/*
+	TODO: Make more efficient by rebuilding individual edge
+*/
 void TerrainNode::rebuildEdge(int dir) {
 	init();
 }
@@ -146,19 +148,12 @@ void TerrainNode::cleanup() {
 }
 
 void TerrainNode::notifyNeighbours() {
-	/*auto neighbours = getSENeighbours();
+	auto neighbours = getSENeighbours();
 
 	for (auto &node : neighbours[North]) if (node) node->rebuildEdge(South);
 	for (auto &node : neighbours[East ]) if (node) node->rebuildEdge(West );
 	for (auto &node : neighbours[South]) if (node) node->rebuildEdge(North);
-	for (auto &node : neighbours[West ]) if (node) node->rebuildEdge(East );*/
-}
-
-void TerrainNode::removeMarkers() {
-	for (auto &marker : mMarkers)
-		mSceneNode->removeChild(marker);
-
-	mMarkers.clear();
+	for (auto &node : neighbours[West ]) if (node) node->rebuildEdge(East );
 }
 
 irr::f32 TerrainNode::getHeight(int edge, int index) const {
@@ -332,8 +327,6 @@ std::vector<TerrainNode*> TerrainNode::getSENeighboursDir(TerrainNode *neighbour
 }
 
 void TerrainNode::cleanData() {
-	removeMarkers();
-
 	Triangles -= mNumIndices / 3;
 
 	if (mSceneNode && mMesh) {
@@ -358,11 +351,6 @@ void TerrainNode::createMesh() {
 	mSceneNode->setMaterialFlag(EMF_WIREFRAME, Wireframe);
 	mSceneNode->setMaterialFlag(EMF_LIGHTING, false);
 	mSceneNode->setMaterialType((E_MATERIAL_TYPE)mTerrain->getMaterialType());
-
-	/*if (!mParent) {
-		mSceneNode->setPosition(mTerrain->getPosition());
-		mSceneNode->setRotation(mTerrain->getRotation());
-	}*/
 
 	mNumVertices = GRID_SIZE * GRID_SIZE;
 	mNumIndices	 = 6 * (GRID_SIZE - 1) * (GRID_SIZE - 1);
@@ -417,24 +405,25 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 			f32 tu = 0.5f + (atan2(sphere.Z, sphere.X) / (2.0f * PI));
 			f32 tv = 0.5f - (asinf(sphere.Y) / PI);
 
-			/*if (details[North] > 1 && y == 0 && x > 0 && x < GRID_SIZE - 1 && (x % details[North] != 0))
-				fixDetailV(x, yy, details, stepX, stepY, height, normal, North);
+			S3DVertex &v = buf->Vertices[i++];
+			v.Color.set(0xFFFFFF);
+
+			if (details[North] > 1 && y == 0 && x > 0 && x < GRID_SIZE - 1 && (x % details[North] != 0))
+				fixDetailV(v, x, yy, details, stepX, stepY, height, normal, North, rot);
 			else if(details[South] > 1 && y == GRID_SIZE - 1 && x > 0 && x < GRID_SIZE - 1 && (x % details[South] != 0))
-				fixDetailV(x, yy, details, stepX, stepY, height, normal, South);
+				fixDetailV(v, x, yy, details, stepX, stepY, height, normal, South, rot);
 			else if (details[West] > 1 && x == 0 && y > 0 && y < GRID_SIZE - 1 && (y % details[West] != 0))
-				fixDetailH(y, xx, details, stepX, stepY, height, normal, West);
+				fixDetailH(v, y, xx, details, stepX, stepY, height, normal, West, rot);
 			else if (details[East] > 1 && x == GRID_SIZE - 1 && y > 0 && y < GRID_SIZE - 1 && (y % details[East] != 0))
-				fixDetailH(y, xx, details, stepX, stepY, height, normal, East);
-			else {*/
+				fixDetailH(v, y, xx, details, stepX, stepY, height, normal, East, rot);
+			else {
 				if(Normals)
 					normal = calculateNormal(xx, yy, stepX, stepY);
 				
-				height = mTerrain->getHeight(tu, tv);
-			//}
+				height = mTerrain->getHeight(sphere.X, sphere.Y, sphere.Z);
+			}
 
-			S3DVertex &v = buf->Vertices[i++];
 			v.Pos = (sphere * mTerrain->getRadius()) + (sphere * height);
-			v.Color.set(0xFFFFFF);
 			v.Normal = normal;
 
 			//mHeights[i - 1] = v.Pos;
@@ -460,7 +449,7 @@ void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {
 	}
 }
 
-void TerrainNode::fixDetailV(int x, float yy, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir) {
+void TerrainNode::fixDetailV(S3DVertex &v, int x, float yy, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir, irr::core::matrix4 &rot) {
 	f32 r = (f32)(x % details[dir]);
 	f32 p = r / (f32)details[dir];
 	f32 p0 = -r, p1 = (f32)details[dir] - r;
@@ -468,8 +457,14 @@ void TerrainNode::fixDetailV(int x, float yy, std::array<irr::s32, 4U> &details,
 	float xx0 = mBounds.UpperLeftCorner.X + (x + p0) * stepX;
 	float xx1 = mBounds.UpperLeftCorner.X + (x + p1) * stepX;
 
-	float h0 = mTerrain->getHeight(xx0, yy);
-	float h1 = mTerrain->getHeight(xx1, yy);
+	vector3df sphere1 = mTerrain->project(vector3df(xx0, 0.5f, yy)).normalize();
+	vector3df sphere2 = mTerrain->project(vector3df(xx1, 0.5f, yy)).normalize();
+	
+	rot.rotateVect(sphere1);
+	rot.rotateVect(sphere2);
+
+	float h0 = mTerrain->getHeight(sphere1.X, sphere1.Y, sphere1.Z);
+	float h1 = mTerrain->getHeight(sphere2.X, sphere2.Y, sphere2.Z);
 
 	height = h0 + p * (h1 - h0);
 
@@ -479,9 +474,11 @@ void TerrainNode::fixDetailV(int x, float yy, std::array<irr::s32, 4U> &details,
 
 		normal = n0 + p * (n1 - n0);
 	}
+
+	v.Color.set(0xFF0000);
 }
 
-void TerrainNode::fixDetailH(int y, float xx, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir) {
+void TerrainNode::fixDetailH(S3DVertex &v, int y, float xx, std::array<irr::s32, 4U> &details, float stepX, float stepY, float &height, irr::core::vector3df &normal, int dir, irr::core::matrix4 &rot) {
 	f32 r = (f32)(y % details[dir]);
 	f32 p = r / (f32)details[dir];
 	f32 p0 = -r, p1 = (f32)details[dir] - r;
@@ -489,8 +486,14 @@ void TerrainNode::fixDetailH(int y, float xx, std::array<irr::s32, 4U> &details,
 	float yy0 = mBounds.UpperLeftCorner.Y + (y + p0) * stepY;
 	float yy1 = mBounds.UpperLeftCorner.Y + (y + p1) * stepY;
 
-	float h0 = mTerrain->getHeight(xx, yy0);
-	float h1 = mTerrain->getHeight(xx, yy1);
+	vector3df sphere1 = mTerrain->project(vector3df(xx, 0.5f, yy0)).normalize();
+	vector3df sphere2 = mTerrain->project(vector3df(xx, 0.5f, yy1)).normalize();
+
+	rot.rotateVect(sphere1);
+	rot.rotateVect(sphere2);
+
+	float h0 = mTerrain->getHeight(sphere1.X, sphere1.Y, sphere1.Z);
+	float h1 = mTerrain->getHeight(sphere2.X, sphere2.Y, sphere2.Z);
 
 	height = h0 + p * (h1 - h0);
 
@@ -500,6 +503,8 @@ void TerrainNode::fixDetailH(int y, float xx, std::array<irr::s32, 4U> &details,
 
 		normal = n0 + p * (n1 - n0);
 	}
+
+	v.Color.set(0xFF0000);
 }
 
 vector3df TerrainNode::calculateNormal(irr::f32 x, irr::f32 y, irr::f32 stepX, irr::f32 stepY) {
@@ -509,7 +514,7 @@ vector3df TerrainNode::calculateNormal(irr::f32 x, irr::f32 y, irr::f32 stepX, i
 
 	for (int yy = -1; yy <= 1; yy++)
 		for (int xx = -1; xx <= 1; xx++)
-			s[i++] = mTerrain->getHeight((x - (f32)xx * stepX), (y - (f32)yy * stepY));
+			s[i++] = mTerrain->getHeight((x - (f32)xx * stepX), (y - (f32)yy * stepY), 0);
 
 	f32 scale = 0.02f;
 

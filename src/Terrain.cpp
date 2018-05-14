@@ -14,7 +14,7 @@ Terrain::Terrain(irr::IrrlichtDevice *device, irr::scene::ISceneNode *node, irr:
 	mBounds(-0.5f, -0.5f, 0.5f, 0.5f),
 	mRadius(radius)
 {
-	//generateHeightmap();
+	generateHeightmap();
 	
 	mGPU = mDriver->getGPUProgrammingServices();
 	mDriver->setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, false);
@@ -65,8 +65,8 @@ void Terrain::update() {
 		face->update();
 }
 
-float Terrain::getHeight(float x, float y) const {
-	float h = (float)mNoise.GetValue((double)x * 2.0, (double)y * 2.0, 0.0);
+float Terrain::getHeight(float x, float y, float z) const {
+	float h = (float)mNoise.GetValue(x, y, z) * 3.5f;
 	return h;
 }
 
@@ -83,27 +83,20 @@ vector3df Terrain::project(vector3df p) const {
 }
 
 void Terrain::generateHeightmap() {
-	mNoise.SetOctaveCount(14);
-	mNoise.SetFrequency(1.0f);
-	mNoise.SetPersistence(0.5f);
+	mNoise.SetOctaveCount(12);
+	mNoise.SetFrequency(2.4f);
+	mNoise.SetPersistence(0.54f);
 	mNoise.SetLacunarity(2.0f);
 
 	utils::NoiseMapBuilderSphere builder;
 	builder.SetSourceModule(mNoise);
 	builder.SetDestNoiseMap(mHeightmap);
-	builder.SetDestSize(512, 256);
+	builder.SetDestSize(1024, 512);
 	builder.SetBounds(-90.0, 90.0, -180.0, 180.0);
 	builder.Build();
 
 	utils::RendererImage renderer;
 	utils::Image image;
-	utils::NoiseMapBuilderSphere heightMapBuilder;
-
-	heightMapBuilder.SetSourceModule(mNoise);
-	heightMapBuilder.SetDestNoiseMap(mHeightmap);
-	heightMapBuilder.SetDestSize(4096, 2048);
-	heightMapBuilder.SetBounds(-90.0, 90.0, -180.0, 180.0);
-	heightMapBuilder.Build();
 
 	renderer.SetSourceNoiseMap(mHeightmap);
 	renderer.SetDestImage(image);
@@ -115,9 +108,8 @@ void Terrain::generateHeightmap() {
 	renderer.AddGradientPoint(0.1250, utils::Color(32, 160, 0, 255)); // grass
 	renderer.AddGradientPoint(0.3750, utils::Color(32, 120, 0, 255)); // dirt
 	renderer.AddGradientPoint(0.7500, utils::Color(32, 100, 0, 255)); // rock
-	renderer.AddGradientPoint(1.0000, utils::Color(32, 70, 0, 255)); // snow
 	renderer.EnableLight();
-	renderer.SetLightContrast(3.0);
+	renderer.SetLightContrast(1.2);
 	renderer.SetLightBrightness(2.0);
 	renderer.Render();
 
