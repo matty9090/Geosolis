@@ -77,9 +77,9 @@ irr::scene::ISceneNode *Terrain::getSceneNode() const {
 vector3df Terrain::project(vector3df p) const {
 	float x2 = p.X * p.X, y2 = p.Y * p.Y, z2 = p.Z * p.Z;
 
-	return vector3df(p.X * sqrtf(1.0f - y2 * 0.5f - z2 * 0.5f + (y2 * z2) * 0.33333f),
-					 p.Y * sqrtf(1.0f - z2 * 0.5f - x2 * 0.5f + (z2 * x2) * 0.33333f),
-					 p.Z * sqrtf(1.0f - x2 * 0.5f - y2 * 0.5f + (x2 * y2) * 0.33333f));
+	return vector3df(p.X * sqrtf(1.0f - y2 * 0.5f - z2 * 0.5f + (y2 * z2) * 0.3333333f),
+					 p.Y * sqrtf(1.0f - z2 * 0.5f - x2 * 0.5f + (z2 * x2) * 0.3333333f),
+					 p.Z * sqrtf(1.0f - x2 * 0.5f - y2 * 0.5f + (x2 * y2) * 0.3333333f));
 }
 
 void Terrain::generateHeightmap() {
@@ -87,7 +87,7 @@ void Terrain::generateHeightmap() {
 	mNoise.SetFrequency(2.4f);
 	mNoise.SetPersistence(0.54f);
 	mNoise.SetLacunarity(2.0f);
-
+	
 	utils::NoiseMapBuilderSphere builder;
 	builder.SetSourceModule(mNoise);
 	builder.SetDestNoiseMap(mHeightmap);
@@ -95,8 +95,8 @@ void Terrain::generateHeightmap() {
 	builder.SetBounds(-90.0, 90.0, -180.0, 180.0);
 	builder.Build();
 
-	utils::RendererImage renderer;
 	utils::Image image;
+	utils::RendererImage renderer;
 
 	renderer.SetSourceNoiseMap(mHeightmap);
 	renderer.SetDestImage(image);
@@ -112,14 +112,12 @@ void Terrain::generateHeightmap() {
 	renderer.SetLightContrast(1.2);
 	renderer.SetLightBrightness(2.0);
 	renderer.Render();
-
-	utils::WriterBMP writer;
-	writer.SetSourceImage(image);
-	writer.SetDestFilename("tex/heightmap.bmp");
-	writer.WriteDestFile();
+	
+	IImage *img = mDriver->createImageFromData(ECF_A8R8G8B8, dimension2d<u32>(1024, 512), image.GetSlabPtr());
+	mHeightTex = mDriver->addTexture("hm.bmp", img);
 }
 
-void Terrain::setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value) const {
+void Terrain::setMaterialFlag(E_MATERIAL_FLAG flag, bool value) const {
 	for (auto &face : mFaces)
 		face->getSceneNode()->setMaterialFlag(flag, value);
 }

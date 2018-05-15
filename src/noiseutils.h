@@ -134,9 +134,6 @@ namespace noise
         {
         }
 
-        /// Value of the alpha (transparency) channel.
-        noise::uint8 alpha;
-
         /// Value of the blue channel.
         noise::uint8 blue;
 
@@ -145,6 +142,9 @@ namespace noise
 
         /// Value of the red channel.
         noise::uint8 red;
+		
+		/// Value of the alpha (transparency) channel.
+        noise::uint8 alpha;
 
     };
 

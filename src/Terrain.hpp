@@ -29,13 +29,17 @@ class Terrain {
 		irr::scene::ISceneManager		*getSceneManager()					const { return mScene; }
 		irr::video::IVideoDriver		*getVideoDriver()					const { return mDriver; }
 		irr::scene::ICameraSceneNode	*getCamera()						const { return mScene->getActiveCamera(); }
-		
+		irr::video::ITexture			*getHeightmapTexture()				const { return mHeightTex; }
+
 	private:
 		irr::f32 mRadius;
 		irr::s32 mMaterialType;
 		irr::core::vector3df mPosition, mRotation;
 		irr::core::rectf mBounds;
+		irr::video::ITexture *mHeightTex;
 		std::array<TerrainNode*, 6> mFaces;
+
+		utils::Image mImage;
 		utils::NoiseMap mHeightmap;
 		noise::module::Perlin mNoise;
 

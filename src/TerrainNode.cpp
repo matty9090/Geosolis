@@ -347,7 +347,7 @@ void TerrainNode::createMesh() {
 	mSceneNode = mTerrain->getSceneManager()->addMeshSceneNode(mMesh, parent);
 	mSceneNode->setMaterialFlag(EMF_BACK_FACE_CULLING, false);
 	mSceneNode->setAutomaticCulling(EAC_OFF);
-	mSceneNode->setMaterialTexture(0, mTerrain->getVideoDriver()->getTexture("tex/Heightmap.bmp"));
+	mSceneNode->setMaterialTexture(0, mTerrain->getHeightmapTexture());
 	mSceneNode->setMaterialFlag(EMF_WIREFRAME, Wireframe);
 	mSceneNode->setMaterialFlag(EMF_LIGHTING, false);
 	mSceneNode->setMaterialType((E_MATERIAL_TYPE)mTerrain->getMaterialType());
