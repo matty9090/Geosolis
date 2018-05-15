@@ -22,6 +22,7 @@ class TerrainNode {
 		void cleanup();
 		void notifyNeighbours();
 
+		void setSphereBounds(irr::core::rectf sphereBounds);
 		void setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value);
 		void setRotation(irr::core::vector3df rotation) { mRotation = rotation; }
 		void setFaceNeighbours(TerrainNode *north, TerrainNode *east, TerrainNode *south, TerrainNode *west);
@@ -48,7 +49,7 @@ class TerrainNode {
 		irr::u32 mDepth;
 		irr::f32 mDiameter;
 
-		irr::core::rectf mBounds;
+		irr::core::rectf mBounds, mSphereBounds;
 		irr::core::vector3df mCentre;
 
 		irr::scene::SMesh *mMesh;
@@ -69,8 +70,11 @@ class TerrainNode {
 		TerrainNode *mParent;
 		irr::scene::ISceneNode *mParentSceneNode;
 
+		irr::video::ITexture *mHeightTex;
+
 		void cleanData();
 		void createMesh();
+		void createHeightMap();
 		void createPlane(irr::scene::SMeshBuffer *buf);
 
 		inline irr::core::vector3df calculateNormal(irr::f32 x, irr::f32 y, irr::f32 stepX, irr::f32 stepY);

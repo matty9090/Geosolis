@@ -2,6 +2,7 @@
 #include "Terrain.hpp"
 
 #include <iostream>
+#include <sstream>
 #include <queue>
 
 using namespace irr;
@@ -26,6 +27,10 @@ TerrainNode::TerrainNode(TerrainNode *parent, Terrain *terrain, irr::core::rectf
 void TerrainNode::init() {
 	cleanData();
 	createMesh();
+}
+
+void TerrainNode::setSphereBounds(irr::core::rectf sphereBounds) {
+	mSphereBounds = sphereBounds;
 }
 
 void TerrainNode::setMaterialFlag(irr::video::E_MATERIAL_FLAG flag, bool value) {
@@ -98,8 +103,10 @@ void TerrainNode::split() {
 		mChildren[SE] = new TerrainNode(this, mTerrain, rectf(x1 + w, y1 + h, x2    , y2    ));
 		mChildren[SW] = new TerrainNode(this, mTerrain, rectf(x1    , y1 + h, x2 - w, y2    ));
 		
-		for (auto &child : mChildren)
+		for (auto &child : mChildren) {
+			child->setSphereBounds(mSphereBounds);
 			child->init();
+		}
 
 		notifyNeighbours();
 	} else {
@@ -343,15 +350,6 @@ void TerrainNode::createMesh() {
 	mMesh->addMeshBuffer(mBuffer);
 	mBuffer->drop();
 
-	ISceneNode *parent = (mParent) ? mParent->getSceneNode() : mParentSceneNode;
-	mSceneNode = mTerrain->getSceneManager()->addMeshSceneNode(mMesh, parent);
-	mSceneNode->setMaterialFlag(EMF_BACK_FACE_CULLING, false);
-	mSceneNode->setAutomaticCulling(EAC_OFF);
-	mSceneNode->setMaterialTexture(0, mTerrain->getHeightmapTexture());
-	mSceneNode->setMaterialFlag(EMF_WIREFRAME, Wireframe);
-	mSceneNode->setMaterialFlag(EMF_LIGHTING, false);
-	mSceneNode->setMaterialType((E_MATERIAL_TYPE)mTerrain->getMaterialType());
-
 	mNumVertices = GRID_SIZE * GRID_SIZE;
 	mNumIndices	 = 6 * (GRID_SIZE - 1) * (GRID_SIZE - 1);
 
@@ -365,6 +363,60 @@ void TerrainNode::createMesh() {
 
 	mCentre = mBuffer->Vertices[(mNumVertices - 1) / 2].Pos;
 	mDiameter = (mBuffer->Vertices[0].Pos - mBuffer->Vertices[GRID_SIZE - 1].Pos).getLength();
+	
+	createHeightMap();
+
+	ISceneNode *parent = (mParent) ? mParent->getSceneNode() : mParentSceneNode;
+	mSceneNode = mTerrain->getSceneManager()->addMeshSceneNode(mMesh, parent);
+	mSceneNode->setMaterialFlag(EMF_BACK_FACE_CULLING, false);
+	mSceneNode->setAutomaticCulling(EAC_OFF);
+	mSceneNode->setMaterialTexture(0, mHeightTex);
+	mSceneNode->setMaterialFlag(EMF_WIREFRAME, Wireframe);
+	mSceneNode->setMaterialFlag(EMF_LIGHTING, false);
+	mSceneNode->setMaterialType((E_MATERIAL_TYPE)mTerrain->getMaterialType());
+}
+
+void TerrainNode::createHeightMap() {
+	utils::NoiseMap heightMap;
+	utils::NoiseMapBuilderSphere builder;
+
+	vector2df lat(mSphereBounds.UpperLeftCorner.X, mSphereBounds.LowerRightCorner.X);
+	vector2df lon(mSphereBounds.UpperLeftCorner.Y, mSphereBounds.LowerRightCorner.Y);
+
+	lat.X *= (1 + mBounds.UpperLeftCorner.X + 0.5f);
+	lat.Y *= (mBounds.LowerRightCorner.X + 0.5f);
+	lon.X *= (1 + mBounds.UpperLeftCorner.Y + 0.5f);
+	lon.Y *= (mBounds.LowerRightCorner.Y + 0.5f);
+
+	builder.SetSourceModule(mTerrain->getNoiseModule());
+	builder.SetDestNoiseMap(heightMap);
+	builder.SetDestSize(128, 64);
+	builder.SetBounds(lat.X, lat.Y, lon.X, lon.Y);
+	builder.Build();
+
+	utils::Image image;
+	utils::RendererImage renderer;
+
+	renderer.SetSourceNoiseMap(heightMap);
+	renderer.SetDestImage(image);
+	renderer.ClearGradient();
+	renderer.AddGradientPoint(-1.0000, utils::Color(0, 0, 128, 255));
+	renderer.AddGradientPoint(-0.2500, utils::Color(0, 0, 255, 255));
+	renderer.AddGradientPoint(0.0000, utils::Color(0, 128, 255, 255));
+	renderer.AddGradientPoint(0.0625, utils::Color(240, 240, 64, 255));
+	renderer.AddGradientPoint(0.1250, utils::Color(32, 160, 0, 255));
+	renderer.AddGradientPoint(0.3750, utils::Color(32, 120, 0, 255));
+	renderer.AddGradientPoint(0.7500, utils::Color(32, 100, 0, 255));
+	renderer.EnableLight();
+	renderer.SetLightContrast(1.2);
+	renderer.SetLightBrightness(2.0);
+	renderer.Render();
+
+	std::ostringstream ss;
+	ss << mCentre.X << "-" << mCentre.Y << "-" << mCentre.Z;
+
+	IImage *img = mTerrain->getVideoDriver()->createImageFromData(ECF_A8R8G8B8, dimension2d<u32>(128, 64), image.GetSlabPtr());
+	mHeightTex  = mTerrain->getVideoDriver()->addTexture((ss.str() + ".bmp").c_str(), img);
 }
 
 void TerrainNode::createPlane(irr::scene::SMeshBuffer * buf) {

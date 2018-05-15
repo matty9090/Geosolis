@@ -14,7 +14,10 @@ Terrain::Terrain(irr::IrrlichtDevice *device, irr::scene::ISceneNode *node, irr:
 	mBounds(-0.5f, -0.5f, 0.5f, 0.5f),
 	mRadius(radius)
 {
-	generateHeightmap();
+	mNoise.SetOctaveCount(12);
+	mNoise.SetFrequency(2.4f);
+	mNoise.SetPersistence(0.54f);
+	mNoise.SetLacunarity(2.0f);
 	
 	mGPU = mDriver->getGPUProgrammingServices();
 	mDriver->setTextureCreationFlag(ETCF_CREATE_MIP_MAPS, false);
@@ -33,6 +36,13 @@ Terrain::Terrain(irr::IrrlichtDevice *device, irr::scene::ISceneNode *node, irr:
 	mFaces[Left  ]->setRotation(vector3df(   0.0f, 0.0f, -90.0f));
 	mFaces[Front ]->setRotation(vector3df( -90.0f, 0.0f,   0.0f));
 	mFaces[Back  ]->setRotation(vector3df(  90.0f, 0.0f,   0.0f));
+
+	mFaces[Top   ]->setSphereBounds(rectf(-90.0f, -180.0f, -30.0f,  180.0f));
+	mFaces[Bottom]->setSphereBounds(rectf( 30.0f, -180.0f,  90.0f,  180.0f));
+	mFaces[Left  ]->setSphereBounds(rectf(-30.0f, -180.0f,  30.0f,  -90.0f));
+	mFaces[Front ]->setSphereBounds(rectf(-30.0f,  -90.0f,  30.0f,    0.0f));
+	mFaces[Right ]->setSphereBounds(rectf(-30.0f,    0.0f,  30.0f,   90.0f));
+	mFaces[Back  ]->setSphereBounds(rectf(-30.0f,   90.0f,  30.0f,  180.0f));
 
 	mFaces[Top   ]->setFaceNeighbours(mFaces[Back ], mFaces[Right], mFaces[Front ], mFaces[Left ]);
 	mFaces[Bottom]->setFaceNeighbours(mFaces[Front], mFaces[Right], mFaces[Back  ], mFaces[Left ]);
@@ -80,41 +90,6 @@ vector3df Terrain::project(vector3df p) const {
 	return vector3df(p.X * sqrtf(1.0f - y2 * 0.5f - z2 * 0.5f + (y2 * z2) * 0.3333333f),
 					 p.Y * sqrtf(1.0f - z2 * 0.5f - x2 * 0.5f + (z2 * x2) * 0.3333333f),
 					 p.Z * sqrtf(1.0f - x2 * 0.5f - y2 * 0.5f + (x2 * y2) * 0.3333333f));
-}
-
-void Terrain::generateHeightmap() {
-	mNoise.SetOctaveCount(12);
-	mNoise.SetFrequency(2.4f);
-	mNoise.SetPersistence(0.54f);
-	mNoise.SetLacunarity(2.0f);
-	
-	utils::NoiseMapBuilderSphere builder;
-	builder.SetSourceModule(mNoise);
-	builder.SetDestNoiseMap(mHeightmap);
-	builder.SetDestSize(1024, 512);
-	builder.SetBounds(-90.0, 90.0, -180.0, 180.0);
-	builder.Build();
-
-	utils::Image image;
-	utils::RendererImage renderer;
-
-	renderer.SetSourceNoiseMap(mHeightmap);
-	renderer.SetDestImage(image);
-	renderer.ClearGradient();
-	renderer.AddGradientPoint(-1.0000, utils::Color(0, 0, 128, 255)); // deeps
-	renderer.AddGradientPoint(-0.2500, utils::Color(0, 0, 255, 255)); // shallow
-	renderer.AddGradientPoint(0.0000, utils::Color(0, 128, 255, 255)); // shore
-	renderer.AddGradientPoint(0.0625, utils::Color(240, 240, 64, 255)); // sand
-	renderer.AddGradientPoint(0.1250, utils::Color(32, 160, 0, 255)); // grass
-	renderer.AddGradientPoint(0.3750, utils::Color(32, 120, 0, 255)); // dirt
-	renderer.AddGradientPoint(0.7500, utils::Color(32, 100, 0, 255)); // rock
-	renderer.EnableLight();
-	renderer.SetLightContrast(1.2);
-	renderer.SetLightBrightness(2.0);
-	renderer.Render();
-	
-	IImage *img = mDriver->createImageFromData(ECF_A8R8G8B8, dimension2d<u32>(1024, 512), image.GetSlabPtr());
-	mHeightTex = mDriver->addTexture("hm.bmp", img);
 }
 
 void Terrain::setMaterialFlag(E_MATERIAL_FLAG flag, bool value) const {
